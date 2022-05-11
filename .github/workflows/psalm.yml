@@ -20,13 +20,8 @@ jobs:
 
     strategy:
       matrix:
-        os:
-          - ubuntu-latest
-
-        php:
-          - 7.4
-          - 8.0
-          - 8.1
+        os: ${{ fromJson(inputs.os) }}
+        php: ${{ fromJson(inputs.php) }}
 
     steps:
       - name: Checkout
