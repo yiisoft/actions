@@ -13,7 +13,7 @@ on:
         default:
         required: false
         type: string
-      init-values:
+      ini-values:
         description: Initial values for PHP configuration
         default: date.timezone='UTC'
         required: false
@@ -52,7 +52,7 @@ jobs:
         with:
           coverage: ${{ inputs.coverage }}
           extensions: ${{ inputs.extensions}}
-          ini-values: ${{ inputs.init-values }}
+          ini-values: ${{ inputs.ini-values }}
           php-version: ${{ matrix.php }}
           tools: ${{ inputs.tools }}
 
