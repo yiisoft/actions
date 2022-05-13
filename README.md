@@ -39,7 +39,7 @@ name: build
 
 jobs:
   phpunit:
-    uses: yiisoft/actions/.github/workflows/phpunit.yml@main
+    uses: yiisoft/actions/.github/workflows/phpunit.yml@master
     with:
       # coverage: pcov / coverage: xdebug / coverage: xdebug2 / coverage: none 
       # extensions: pdo, pdo_pgsql
@@ -81,7 +81,7 @@ name: static analysis
 
 jobs:
   psalm:
-    uses: yiisoft/actions/.github/workflows/psalm.yml@main
+    uses: yiisoft/actions/.github/workflows/psalm.yml@master
     with:
       os: >-
         ['ubuntu-latest']
@@ -116,7 +116,7 @@ name: mutation test
 
 jobs:
   mutation:
-    uses: yiisoft/actions/.github/workflows/roave-infection.yml@main
+    uses: yiisoft/actions/.github/workflows/roave-infection.yml@master
     with:
       os: >-
         ['ubuntu-latest']
