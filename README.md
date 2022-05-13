@@ -49,8 +49,6 @@ jobs:
       php: >-
         ['8.0', '8.1']
       #tools: composer:v2 
-    secrets:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 ```
 
 ### Example of use of the action [PSALM](https://github.com/vimeo/psalm)
