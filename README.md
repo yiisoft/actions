@@ -2,14 +2,14 @@
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
     </a>
-    <h1 align="center">Yii Actions</h1>
+    <h1 align="center">Yii GitHub Actions</h1>
     <br>
 </p>
 
 
 ## General usage
 
-This package allows us to reuse github actions, which simplifies version management.
+This package allows us to reuse GitHub actions, which simplifies version management.
 
 ### Example of use of the action [PHPUnit](https://github.com/sebastianbergmann/phpunit)
 
