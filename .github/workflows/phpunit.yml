@@ -4,30 +4,30 @@ on:
   workflow_call:
     inputs:
       coverage:
-        description: Generate code coverage report
+        description: Generate code coverage report.
         default: pcov
         required: false
         type: string
       extensions:
-        description: List of extensions to PHP
+        description: List of extensions to PHP.
         default:
         required: false
         type: string
       ini-values:
-        description: Initial values for PHP configuration
+        description: Initial values for PHP configuration.
         default: date.timezone='UTC'
         required: false
         type: string
       os:
-        description: Os to test, separated by comma
+        description: Os to test, separated by comma.
         required: true
         type: string
       php:
-        description: PHP versions to test, separated by comma
+        description: PHP versions to test, separated by comma.
         required: true
         type: string
       tools:
-        description: Tools to test, separated by comma
+        description: Tools to test, separated by comma.
         default: composer:v2
         required: false
         type: string
@@ -44,10 +44,10 @@ jobs:
         php: ${{ fromJson(inputs.php) }}
 
     steps:
-      - name: Checkout
+      - name: Checkout.
         uses: actions/checkout@v3
 
-      - name: Install PHP
+      - name: Install PHP.
         uses: shivammathur/setup-php@v2
         with:
           coverage: ${{ inputs.coverage }}
@@ -56,15 +56,15 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: ${{ inputs.tools }}
 
-      - name: Determine composer cache directory on Linux
+      - name: Determine composer cache directory on Linux.
         if: matrix.os == 'ubuntu-latest'
         run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
 
-      - name: Determine composer cache directory on Windows
+      - name: Determine composer cache directory on Windows.
         if: matrix.os == 'windows-latest'
         run: echo "COMPOSER_CACHE_DIR=~\AppData\Local\Composer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: Cache dependencies installed with composer
+      - name: Cache dependencies installed with composer.
         uses: actions/cache@v3
         with:
           path: ${{ env.COMPOSER_CACHE_DIR }}
@@ -72,11 +72,11 @@ jobs:
           restore-keys: |
             php${{ matrix.php }}-composer-
 
-      - name: Update composer
+      - name: Update composer.
         run: composer self-update
 
-      - name: Install dependencies with composer
+      - name: Install dependencies with composer.
         run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
-      - name: Run tests with phpunit
+      - name: Run tests with phpunit.
         run: vendor/bin/phpunit --colors=always
