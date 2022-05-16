@@ -1,11 +1,21 @@
-name: roave-infection
+name: phpbench
 
 on:
   workflow_call:
     inputs:
+      coverage:
+        description: Generate code coverage report.
+        default: pcov
+        required: false
+        type: string
       extensions:
         description: List of extensions to PHP.
         default:
+        required: false
+        type: string
+      ini-values:
+        description: Initial values for PHP configuration.
+        default: date.timezone='UTC'
         required: false
         type: string
       os:
@@ -16,12 +26,14 @@ on:
         description: PHP versions to test, separated by comma.
         required: true
         type: string
-    secrets:
-      STRYKER_DASHBOARD_API_KEY:
-        required: true
+      tools:
+        description: Tools to test, separated by comma.
+        default: composer:v2
+        required: false
+        type: string
 
 jobs:
-  roave-infection:
+  phpbench:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
 
     runs-on: ${{ matrix.os }}
@@ -38,14 +50,19 @@ jobs:
       - name: Install PHP.
         uses: shivammathur/setup-php@v2
         with:
-          coverage: pcov
+          coverage: ${{ inputs.coverage }}
           extensions: ${{ inputs.extensions }}
-          ini-values: date.timezone='UTC'
+          ini-values: ${{ inputs.ini-values }}
           php-version: ${{ matrix.php }}
-          tools: composer:v2
+          tools: ${{ inputs.tools }}
 
-      - name: Determine composer cache directory.
+      - name: Determine composer cache directory on Linux.
+        if: matrix.os == 'ubuntu-latest'
         run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
+
+      - name: Determine composer cache directory on Windows.
+        if: matrix.os == 'windows-latest'
+        run: echo "COMPOSER_CACHE_DIR=~\AppData\Local\Composer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Cache dependencies installed with composer.
         uses: actions/cache@v3
@@ -61,8 +78,5 @@ jobs:
       - name: Install dependencies with composer.
         run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
-      - name: Run roave infection.
-        run: |
-          vendor/bin/roave-infection-static-analysis-plugin -j2 --ignore-msi-with-no-mutations --only-covered
-        env:
-          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
+      - name: Run phpbench.
+        run: vendor/bin/phpbench run --ansi
