@@ -45,7 +45,7 @@ jobs:
         with:
           coverage: pcov
           extensions: ${{ inputs.extensions }}
-          ini-values: date.timezone='UTC'
+          ini-values: ${{ inputs.ini-values }}
           php-version: ${{ matrix.php }}
           tools: composer:v2
 
