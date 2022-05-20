@@ -8,6 +8,11 @@ on:
         default:
         required: false
         type: string
+      ini-values:
+        description: Initial values for PHP configuration.
+        default: date.timezone='UTC'
+        required: false
+        type: string
       os:
         description: Os to test, separated by comma.
         required: true
@@ -40,7 +45,7 @@ jobs:
         with:
           coverage: pcov
           extensions: ${{ inputs.extensions }}
-          ini-values: date.timezone='UTC'
+          ini-values: ${{ inputs.ini-values }}
           php-version: ${{ matrix.php }}
           tools: composer:v2
 
