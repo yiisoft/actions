@@ -11,6 +11,42 @@
 
 This package allows us to reuse GitHub actions, which simplifies version management.
 
+### Example of use of the action [Composer require checker](https://github.com/maglnet/ComposerRequireChecker)
+
+```yml
+on:
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'infection.json.dist'
+      - 'phpunit.xml.dist'
+
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'infection.json.dist'
+      - 'phpunit.xml.dist'
+
+name: composer require checker
+
+jobs:
+  composer-require-checker:
+    uses: yiisoft/actions/.github/workflows/composer-require-checker.yml@master
+    with:
+      os: >-
+        ['ubuntu-latest']
+      php: >-
+        ['8.0']
+```
+
 ### Example of use of the action [PHPBench](https://github.com/phpbench/phpbench)
 
 ```yml
