@@ -127,6 +127,32 @@ jobs:
         ['7.4', '8.0', '8.1']
 ```
 
+### Example of use of the action [RECTOR](https://github.com/rectorphp/rector)
+
+```yml
+on:
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'infection.json.dist'
+      - 'psalm.xml'
+
+name: rector
+
+jobs:
+  rector:
+    uses: yiisoft/actions/.github/workflows/rector.yml@master
+    with:
+      os: >-
+        ['ubuntu-latest']
+      php: >-
+        ['8.0']
+```
+
 ### Example of use of the action [ROAVE-INFECTION](https://github.com/roave/infection-static-analysis-plugin)
 
 ```yml
@@ -163,7 +189,6 @@ jobs:
     secrets:
       STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 ```
-
 
 ### Support the project
 
