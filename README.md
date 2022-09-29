@@ -141,6 +141,16 @@ on:
       - 'infection.json.dist'
       - 'psalm.xml'
 
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'infection.json.dist'
+      - 'psalm.xml'
+
 name: rector
 
 jobs:
