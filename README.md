@@ -11,7 +11,7 @@
 
 This package allows us to reuse GitHub actions, which simplifies version management.
 
-### Example of use of the action [Composer require checker](https://github.com/maglnet/ComposerRequireChecker)
+### Using [Composer require checker](https://github.com/maglnet/ComposerRequireChecker)
 
 ```yml
 on:
