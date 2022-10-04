@@ -26,6 +26,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -57,16 +59,11 @@ jobs:
         id: rector-git-check
         run: echo ::set-output name=modified::$(if git diff --exit-code --no-patch; then echo "false"; else echo "true"; fi)
 
-      - name: Git config
-        if: steps.rector-git-check.outputs.modified == 'true'
-        run: |
-          git config --global user.name 'rector-bot'
-          git config --global user.email 'rector@yiiframework.com'
-
-      - name: Commit Rector changes
-        if: steps.rector-git-check.outputs.modified == 'true'
-        run: git commit -am "[rector] Apply fixes"
-
-      - name: Push changes
-        if: steps.rector-git-check.outputs.modified == 'true'
-        run: git push
+      - uses: EndBug/add-and-commit@v7.5.0
+        with:
+          add: .
+          message: "[ci-review] Apply changes from Rector action."
+          author_name: "rector-bot"
+          author_email: "rector@yiiframework.com"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
