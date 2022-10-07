@@ -59,7 +59,7 @@ jobs:
         id: rector-git-check
         run: echo ::set-output name=modified::$(if git diff --exit-code --no-patch; then echo "false"; else echo "true"; fi)
 
-      - uses: EndBug/add-and-commit@v7.5.0
+      - uses: EndBug/add-and-commit@v9
         with:
           add: .
           message: "[ci-review] Apply changes from Rector action."
