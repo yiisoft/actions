@@ -12,10 +12,10 @@ on:
         required: true
         type: string
       config:
-        description: A name of config file
+        description: A path to config file
         required: false
         type: string
-        default: composer-require-checker.json
+        default: ./composer-require-checker.json
 
 jobs:
   composer-require-checker:
@@ -56,5 +56,5 @@ jobs:
       - name: Install dependencies with composer
         run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
-      - name: Check dependency
-        run: CONFIG_PATH="$(realpath -s ${{ inputs.config }})" && test -f $CONFIG_PATH && vendor/bin/composer-require-checker --config-file=$CONFIG_PATH || vendor/bin/composer-require-checker
+      - name: Check dependencies
+        run: args=(); test -n "${{ inputs.config }}" && args+=("--config-file=${{ inputs.config }}"); vendor/bin/composer-require-checker ${args[@]}
