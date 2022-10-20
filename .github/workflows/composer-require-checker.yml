@@ -15,7 +15,7 @@ on:
         description: A path to config file
         required: false
         type: string
-        default: ./composer-require-checker.json
+        default: ""
 
 jobs:
   composer-require-checker:
