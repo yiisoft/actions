@@ -13,6 +13,16 @@ on:
         default: date.timezone='UTC'
         required: false
         type: string
+      min-covered-msi:
+        description: Minimum MSI to be considered a success.
+        default: 0
+        required: false
+        type: string
+      min-msi:
+        description: Minimum Mutation Score Indicator.
+        default: 0
+        required: false
+        type: string
       os:
         description: Os to test, separated by comma.
         required: true
@@ -21,6 +31,7 @@ on:
         description: PHP versions to test, separated by comma.
         required: true
         type: string
+
     secrets:
       STRYKER_DASHBOARD_API_KEY:
         required: true
@@ -68,6 +79,6 @@ jobs:
 
       - name: Run roave infection.
         run: |
-          vendor/bin/roave-infection-static-analysis-plugin -j2 --ignore-msi-with-no-mutations --only-covered
+          vendor/bin/roave-infection-static-analysis-plugin -j2 --min-msi=${{ inputs.min-msi }} --min-covered-msi=${{ inputs.min-msi }} --ignore-msi-with-no-mutations --only-covered
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
