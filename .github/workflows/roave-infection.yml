@@ -3,6 +3,11 @@ name: roave-infection
 on:
   workflow_call:
     inputs:
+      composer-flag:
+        description: Composer flag.
+        default: --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+        required: false
+        type: string
       extensions:
         description: List of extensions to PHP.
         default:
@@ -51,7 +56,7 @@ jobs:
       - name: Checkout.
         uses: actions/checkout@v3
 
-      - name: Install PHP.
+      - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2
         with:
           coverage: pcov
@@ -60,7 +65,7 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: composer:v2
 
-      - name: Determine composer cache directory.
+      - name: Determine composer cache directory on Linux.
         run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
 
       - name: Cache dependencies installed with composer.
@@ -75,7 +80,7 @@ jobs:
         run: composer self-update
 
       - name: Install dependencies with composer.
-        run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+        run: composer update ${{ inputs.composer-flag }}
 
       - name: Run roave infection.
         run: |
