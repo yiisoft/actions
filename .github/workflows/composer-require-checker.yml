@@ -3,9 +3,9 @@ name: composer-require-checker
 on:
   workflow_call:
     inputs:
-      composer-options:
-        description: Composer update command options.
-        default: --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+      composer-command:
+        description: Composer command to run.
+        default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
         required: false
         type: string
       config:
@@ -59,7 +59,7 @@ jobs:
         run: composer self-update
 
       - name: Install dependencies with composer.
-        run: composer update ${{ inputs.composer-options }}
+        run: ${{ inputs.composer-command }}
 
       - name: Check dependencies.
         run: args=(); test -n "${{ inputs.config }}" && args+=("--config-file=${{ inputs.config }}"); vendor/bin/composer-require-checker ${args[@]}
