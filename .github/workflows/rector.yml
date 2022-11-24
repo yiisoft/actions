@@ -3,6 +3,11 @@ name: rector
 on:
   workflow_call:
     inputs:
+      composer-command:
+        description: Composer command to run.
+        default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+        required: false
+        type: string
       os:
         description: Os to test, separated by comma.
         required: true
@@ -32,23 +37,23 @@ jobs:
         if: github.event_name == 'push'
         run: echo "BRANCH=${GITHUB_REF_NAME}" >> $GITHUB_ENV
 
-      - name: Checkout
+      - name: Checkout.
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ env.BRANCH }}
 
-      - name: Install PHP
+      - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
           coverage: none
 
-      - name: Determine composer cache directory
+      - name: Determine composer cache directory on Linux.
         run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
 
-      - name: Cache dependencies installed with composer
+      - name: Cache dependencies installed with composer.
         uses: actions/cache@v3
         with:
           path: ${{ env.COMPOSER_CACHE_DIR }}
@@ -56,15 +61,15 @@ jobs:
           restore-keys: |
             php${{ matrix.php }}-composer-
 
-      - name: Update composer
+      - name: Update composer.
         run: composer self-update
 
-      - name: Install dependencies with composer
-        run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+      - name: Install dependencies with composer.
+        run: ${{ inputs.composer-command }}
 
       - run: vendor/bin/rector process --ansi
 
-      - name: Check for Rector modified files
+      - name: Check for Rector modified files.
         id: rector-git-check
         run: echo ::set-output name=modified::$(if git diff --exit-code --no-patch; then echo "false"; else echo "true"; fi)
 

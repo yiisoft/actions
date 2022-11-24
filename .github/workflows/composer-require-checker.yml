@@ -3,6 +3,16 @@ name: composer-require-checker
 on:
   workflow_call:
     inputs:
+      composer-command:
+        description: Composer command to run.
+        default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+        required: false
+        type: string
+      config:
+        description: A path to config file.
+        required: false
+        type: string
+        default: ""
       os:
         description: Operating systems to test, separated by comma.
         required: true
@@ -11,11 +21,6 @@ on:
         description: PHP versions to test, separated by comma.
         required: true
         type: string
-      config:
-        description: A path to config file
-        required: false
-        type: string
-        default: ""
 
 jobs:
   composer-require-checker:
@@ -29,20 +34,20 @@ jobs:
         php: ${{ fromJson(inputs.php) }}
 
     steps:
-      - name: Checkout
+      - name: Checkout.
         uses: actions/checkout@v3
 
-      - name: Install PHP
+      - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           tools: composer:v2
           coverage: none
 
-      - name: Determine composer cache directory
+      - name: Determine composer cache directory on Linux.
         run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
 
-      - name: Cache dependencies installed with composer
+      - name: Cache dependencies installed with composer.
         uses: actions/cache@v3
         with:
           path: ${{ env.COMPOSER_CACHE_DIR }}
@@ -50,11 +55,11 @@ jobs:
           restore-keys: |
             php${{ matrix.php }}-composer-
 
-      - name: Update composer
+      - name: Update composer.
         run: composer self-update
 
-      - name: Install dependencies with composer
-        run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+      - name: Install dependencies with composer.
+        run: ${{ inputs.composer-command }}
 
-      - name: Check dependencies
+      - name: Check dependencies.
         run: args=(); test -n "${{ inputs.config }}" && args+=("--config-file=${{ inputs.config }}"); vendor/bin/composer-require-checker ${args[@]}
