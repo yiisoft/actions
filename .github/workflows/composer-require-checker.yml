@@ -9,7 +9,7 @@ on:
         required: false
         type: string
       config:
-        description: A path to config file
+        description: A path to config file.
         required: false
         type: string
         default: ""
