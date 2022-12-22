@@ -1,4 +1,4 @@
-### Example of use of the action [ROAVE-INFECTION](https://github.com/roave/infection-static-analysis-plugin)
+# Using [Infection](https://infection.github.io/) mutation framework with [Infection Static Analysis Plugin](https://github.com/Roave/infection-static-analysis-plugin)
 
 ```yml
   pull_request:

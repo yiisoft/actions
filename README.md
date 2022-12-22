@@ -11,13 +11,12 @@
 
 This package allows us to reuse GitHub actions, which simplifies version management.
 
-## Examples:
 - [Composer require checker](docs/composer.md)
 - [PHPBench](docs/php-bench.md)
 - [PHPUnit](docs/php-unit.md)
-- [PSALM](docs/psalm.md)
+- [Psalm](docs/psalm.md)
 - [Rector](docs/rector.md)
-- [Roave Infection](docs/roave-infection.md)
+- [Infection with Static Analysis Plugin](docs/roave-infection.md)
 
 ### Support the project
 

@@ -1,4 +1,4 @@
-### Example of use of the action [RECTOR](https://github.com/rectorphp/rector)
+### Using [Rector](https://github.com/rectorphp/rector)
 
 ```yml
 on:

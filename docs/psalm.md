@@ -1,4 +1,4 @@
-### Example of use of the action [PSALM](https://github.com/vimeo/psalm)
+# Using [Psalm](https://github.com/vimeo/psalm)
 
 ```yml
 on:

@@ -1,4 +1,4 @@
-### Example of use of the action [PHPBench](https://github.com/phpbench/phpbench)
+# Using [PHPBench](https://github.com/phpbench/phpbench)
 
 ```yml
 on:

@@ -1,4 +1,4 @@
-### Using [Composer require checker](https://github.com/maglnet/ComposerRequireChecker)
+# Using [Composer require checker](https://github.com/maglnet/ComposerRequireChecker)
 
 ```yml
 on:

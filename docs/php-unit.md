@@ -1,4 +1,4 @@
-### Example of use of the action [PHPUnit](https://github.com/sebastianbergmann/phpunit)
+# Using [PHPUnit](https://github.com/sebastianbergmann/phpunit)
 
 ```yml
 on:
