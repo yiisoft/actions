@@ -8,6 +8,11 @@ on:
         default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
         required: false
         type: string
+      psalm-config:
+        description: Psalm configuration file.
+        default: psalm.xml
+        required: false
+        type: string
       os:
         description: Os to test, separated by comma.
         required: true
@@ -57,4 +62,4 @@ jobs:
         run: ${{ inputs.composer-command }}
 
       - name: Static analysis.
-        run: vendor/bin/psalm --shepherd --stats --output-format=checkstyle --php-version=${{ matrix.php }} | cs2pr --graceful-warnings --colorize
+        run: vendor/bin/psalm --config=${{ inputs.psalm-config }} --shepherd --stats --output-format=checkstyle --php-version=${{ matrix.php }} | cs2pr --graceful-warnings --colorize
