@@ -41,6 +41,10 @@ jobs:
   phpunit:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
 
+    env:
+      key: cache-v1
+      YII_C3: true
+
     runs-on: ${{ matrix.os }}
 
     strategy:
