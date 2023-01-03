@@ -38,7 +38,7 @@ on:
         type: string
 
 jobs:
-  phpunit:
+  codeception:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
 
     env:
