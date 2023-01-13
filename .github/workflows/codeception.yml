@@ -14,7 +14,7 @@ on:
         required: false
         type: string
       extensions:
-        description: List of extensions to PHP.
+        description: List of PHP extensions to install.
         default:
         required: false
         type: string
@@ -24,7 +24,7 @@ on:
         required: false
         type: string
       os:
-        description: Os to test, separated by comma.
+        description: OS to test, separated by comma.
         required: true
         type: string
       php:
@@ -32,7 +32,7 @@ on:
         required: true
         type: string
       tools:
-        description: Tools to test, separated by comma.
+        description: Tools to install, separated by comma.
         default: composer:v2
         required: false
         type: string
