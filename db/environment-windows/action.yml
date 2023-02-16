@@ -16,4 +16,4 @@ runs:
       shell: pwsh
       run: |
         echo "WORK_PACKAGE_URL=https://github.com/${{ github.event.repository.owner.login }}/" | Out-File -FilePath $env:GITHUB_ENV -Append
-        echo "FULL_BRANCH_NAME=${{ github.ref_name }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "FULL_BRANCH_NAME=dev-${{ github.ref_name }}" | Out-File -FilePath $env:GITHUB_ENV -Append
