@@ -1,0 +1,126 @@
+name: db-mssql
+
+on:
+  workflow_call:
+    inputs:
+      coverage:
+        description: Generate code coverage report.
+        default: pcov
+        required: false
+        type: string
+      composer-root-version:
+        description: Composer root version.
+        default: dev-master
+        required: false
+        type: string
+      extensions:
+        description: List of extensions to PHP.
+        default: pdo, pdo_sqlsrv-5.10.1
+        required: false
+        type: string
+      ini-values:
+        description: Initial values for PHP configuration.
+        default: date.timezone='UTC'
+        required: false
+        type: string
+      install-package:
+        description: Install package.
+        required: true
+        type: string
+      mssql-image:
+        description: MSSQL image docker to test, separated by comma.
+        default: >-
+          ['server:2017-latest', 'server:2019-latest', 'server:2022-latest']
+        required: false
+        type: string
+      os:
+        description: Os to test, separated by comma.
+        default: >-
+          ['ubuntu-latest']
+        required: false
+        type: string
+      php:
+        description: PHP versions to test, separated by comma.
+        default: >-
+          ['8.0', '8.1', '8.2']
+        required: false
+        type: string
+      test-suite:
+        description: Test suite to run.
+        default: ''
+        required: false
+        type: string
+      tools:
+        description: Tools to test, separated by comma.
+        default: composer:v2, pecl
+        required: false
+        type: string
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }}-mssql-${{ matrix.mssql }}
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: ${{ fromJson(inputs.os) }}
+        php: ${{ fromJson(inputs.php) }}
+        mssql: ${{ fromJson(inputs.mssql-image) }}
+
+    services:
+      mssql:
+          image: mcr.microsoft.com/mssql/${{ matrix.mssql }}
+          env:
+            SA_PASSWORD: YourStrong!Passw0rd
+            ACCEPT_EULA: Y
+            MSSQL_PID: Developer
+          ports:
+            - 1433:1433
+          options: --name=mssql --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout.
+        uses: actions/checkout@v3
+
+      - name: Create MS SQL Database.
+        run: docker exec -i mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
+
+      - name: Install PHP with extensions.
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ inputs.extensions }}
+          ini-values: ${{ inputs.ini-values }}
+          coverage: ${{ inputs.coverage }}
+          tools: ${{ inputs.tools }}
+
+      - name: Update composer.
+        run: composer self-update
+
+      - name: Set environment variables pull request linux.
+        uses: yiisoft/actions/db/environment-linux@master
+
+      - name: Install package "${{ inputs.install-package }}".
+        uses: yiisoft/actions/db/subpackage-install@master
+        with:
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+          COMPOSER_ROOT_VERSION: ${{ inputs.composer-root-version }}
+          CURRENT_PACKAGE: ${{ inputs.install-package }}
+          FULL_BRANCH_NAME: ${{ env.FULL_BRANCH_NAME }}
+          WORK_PACKAGE_URL: ${{ env.WORK_PACKAGE_URL }}
+
+      - name: Run mssql tests with phpunit and code coverage.
+        if: ${{ inputs.test-suite }} == ''
+        run: vendor/bin/phpunit --coverage-clover=coverage.xml --colors=always
+
+      - name: Run mssql tests with phpunit and code coverage.
+        if: ${{ inputs.test-suite }} != ''
+        run: vendor/bin/phpunit --testsuite ${ inputs.test-suite } --coverage-clover=coverage.xml --colors=always
+
+      - name: Upload coverage to Codecov.
+        if: matrix.php == '8.1'
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
