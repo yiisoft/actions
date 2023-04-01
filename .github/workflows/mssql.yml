@@ -15,8 +15,7 @@ on:
         type: string
       current-package:
         description: Current package.
-        default: db-mssql
-        required: false
+        required: true
         type: string
       extensions:
         description: List of extensions to PHP.
