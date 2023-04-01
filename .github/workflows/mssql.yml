@@ -13,10 +13,6 @@ on:
         default: dev-master
         required: false
         type: string
-      current-package:
-        description: Current package.
-        required: true
-        type: string
       extensions:
         description: List of extensions to PHP.
         default: pdo, pdo_sqlsrv-5.10.1
@@ -26,6 +22,10 @@ on:
         description: Initial values for PHP configuration.
         default: date.timezone='UTC'
         required: false
+        type: string
+      install-package:
+        description: Install package.
+        required: true
         type: string
       mssql-image:
         description: MSSQL image docker to test, separated by comma.
@@ -105,7 +105,7 @@ jobs:
         with:
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
           COMPOSER_ROOT_VERSION: ${{ inputs.composer-root-version }}
-          CURRENT_PACKAGE: ${{ inputs.current-package }}
+          CURRENT_PACKAGE: ${{ inputs.install-package }}
           FULL_BRANCH_NAME: ${{ env.FULL_BRANCH_NAME }}
           WORK_PACKAGE_URL: ${{ env.WORK_PACKAGE_URL }}
 
