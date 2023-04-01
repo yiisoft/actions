@@ -38,13 +38,13 @@ on:
         description: Os to test, separated by comma.
         default: >-
           ['ubuntu-latest']
-        required: true
+        required: false
         type: string
       php:
         description: PHP versions to test, separated by comma.
         default: >-
           ['8.0', '8.1', '8.2']
-        required: true
+        required: false
         type: string
       test-suite:
         description: Test suite to run.
