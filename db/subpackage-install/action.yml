@@ -38,17 +38,14 @@ runs:
     - name: Install from fork and branch not exists.
       if: ${{ github.event.pull_request.head.repo.fork && env.BRANCH_EXISTS == 0 }}
       shell: bash
-      run: composer require yiisoft/${{ inputs.CURRENT_PACKAGE }}:${{ inputs.COMPOSER_ROOT_VERSION }} --no-interaction --no-progress --optimize-autoloader --ansi
-
-    - name: Install from branch and branch exists.
-      if: ${{ ! github.event.pull_request.head.repo.fork  && env.BRANCH_EXISTS == 1 }}
-      shell: bash
-      run: composer require yiisoft/${{ inputs.CURRENT_PACKAGE }}:${{ inputs.FULL_BRANCH_NAME }} --no-interaction --no-progress --optimize-autoloader --ansi
+      run: |
+        composer require yiisoft/${{ inputs.CURRENT_PACKAGE }}:${{ inputs.COMPOSER_ROOT_VERSION }} --no-interaction --no-progress --optimize-autoloader --ansi
 
     - name: Install from master and branch exists.
       if: ${{ github.event.pull_request.head.repo.full_name == 'yiisoft/db' && env.BRANCH_EXISTS != 1 }}
       shell: bash
-      run: composer require yiisoft/${{ inputs.CURRENT_PACKAGE }}:${{ inputs.COMPOSER_ROOT_VERSION }} --no-interaction --no-progress --optimize-autoloader --ansi
+      run: |
+        composer require yiisoft/${{ inputs.CURRENT_PACKAGE }}:${{ inputs.COMPOSER_ROOT_VERSION }} --no-interaction --no-progress --optimize-autoloader --ansi
 
     - name: Check exist branch (push).
       if: ${{ github.event_name == 'push' }}
@@ -67,4 +64,5 @@ runs:
     - name: Install from fork and branch not exists (push)
       if: ${{ github.event_name == 'push' && env.BRANCH_EXISTS == 0 }}
       shell: bash
-      run: composer require yiisoft/${{ inputs.CURRENT_PACKAGE }}:dev-master --no-interaction --no-progress --optimize-autoloader --ansi
+      run: |
+        composer require yiisoft/${{ inputs.CURRENT_PACKAGE }}:dev-master --no-interaction --no-progress --optimize-autoloader --ansi
