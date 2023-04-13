@@ -71,4 +71,5 @@ runs:
       shell: bash
       run: |
         composer config extra.branch-alias.1.0.0 "dev-master"
+        cat composer.json
         composer require yiisoft/${{ inputs.CURRENT_PACKAGE }}:dev-master --no-interaction --no-progress --optimize-autoloader --ansi
