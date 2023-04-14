@@ -70,4 +70,4 @@ runs:
       if: ${{ github.event_name == 'push' && env.BRANCH_EXISTS == 0 }}
       shell: bash
       run: |
-        composer require yiisoft/${{ inputs.CURRENT_PACKAGE }}:1.0.0 --no-interaction --no-progress --optimize-autoloader --ansi
+        composer require yiisoft/${{ inputs.CURRENT_PACKAGE }}:dev-master --no-interaction --no-progress --optimize-autoloader --ansi
