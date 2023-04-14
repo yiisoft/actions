@@ -54,8 +54,8 @@ runs:
       if: ${{ github.event.pull_request.head.repo.full_name == 'yiisoft/db' && env.BRANCH_EXISTS != 1 }}
       shell: bash
       run: |
-        echo "Pull Request - Install from master and branch exists."
-        composer require yiisoft/${{ inputs.CURRENT_PACKAGE }}:${{ inputs.COMPOSER_ROOT_VERSION }} --no-interaction --no-progress --optimize-autoloader --ansi
+        echo "Pull Request - Install from master and branch not exists."
+        composer require yiisoft/${{ inputs.CURRENT_PACKAGE }}:dev-master --no-interaction --no-progress --optimize-autoloader --ansi
 
     - name: Check exist branch (push).
       if: ${{ github.event_name == 'push' }}
