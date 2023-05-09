@@ -17,6 +17,10 @@ on:
         required: true
         type: string
 
+    secrets:
+      ACCESS_TOKEN:
+        required: true
+
 jobs:
   rector:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
