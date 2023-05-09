@@ -40,7 +40,6 @@ jobs:
       - name: Checkout.
         uses: actions/checkout@v3
         with:
-          fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ env.BRANCH }}
 
