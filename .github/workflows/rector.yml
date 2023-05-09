@@ -33,10 +33,20 @@ jobs:
         php: ${{ fromJson(inputs.php) }}
 
     steps:
+      - name: Set env BRANCH event `pull_request`.
+        if: github.event_name == 'pull_request'
+        run: echo "BRANCH=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
+
+      - name: Set env BRANCH `event push`.
+        if: github.event_name == 'push'
+        run: echo "BRANCH=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+
       - name: Checkout.
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+          token: ${{ secrets.ACCESS_TOKEN }}
+          ref: ${{ env.BRANCH }}
 
       - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2
