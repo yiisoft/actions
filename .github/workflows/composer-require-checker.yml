@@ -21,6 +21,11 @@ on:
         description: PHP versions to test, separated by comma.
         required: true
         type: string
+      extensions:
+        description: List of extensions to PHP.
+        default:
+        required: false
+        type: string
 
 jobs:
   composer-require-checker:
@@ -41,6 +46,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          extensions: ${{ inputs.extensions }}
           tools: composer:v2
           coverage: none
 
