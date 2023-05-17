@@ -21,6 +21,11 @@ on:
         description: PHP versions to test, separated by comma.
         required: true
         type: string
+      extensions:
+        description: List of extensions to PHP.
+        default:
+        required: false
+        type: string
 
 jobs:
   psalm:
@@ -42,6 +47,7 @@ jobs:
         with:
           coverage: none
           php-version: ${{ matrix.php }}
+          extensions: ${{ inputs.extensions }}
           tools: composer:v2, cs2pr
 
       - name: Determine composer cache directory on Linux.
