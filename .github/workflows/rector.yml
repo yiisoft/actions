@@ -3,22 +3,25 @@ name: rector
 on:
   workflow_call:
     inputs:
+      token:
+        description: GitHub Token
+        required: false
+        type: string
       composer-command:
-        description: Composer command to run.
+        description: Composer command to run
         default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
         required: false
         type: string
       os:
-        description: OS to test, separated by comma.
+        description: OS to test, separated by comma
         required: true
         type: string
       php:
-        description: PHP versions to test, separated by comma.
+        description: PHP versions to test, separated by comma
         required: true
         type: string
       extensions:
-        description: List of extensions to PHP.
-        default:
+        description: List of extensions to PHP
         required: false
         type: string
 
@@ -37,10 +40,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.YIISOFT_GITHUB_TOKEN }}
+          token: ${{ inputs.token }}
           ref: ${{ github.head_ref }}
 
-      - name: Install PHP with extensions.
+      - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
