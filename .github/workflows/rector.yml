@@ -9,7 +9,7 @@ on:
         required: false
         type: string
       os:
-        description: Os to test, separated by comma.
+        description: OS to test, separated by comma.
         required: true
         type: string
       php:
@@ -34,19 +34,11 @@ jobs:
         php: ${{ fromJson(inputs.php) }}
 
     steps:
-      - name: Set env BRANCH event `pull_request`.
-        if: github.event_name == 'pull_request'
-        run: echo "BRANCH=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
-
-      - name: Set env BRANCH `event push`.
-        if: github.event_name == 'push'
-        run: echo "BRANCH=${GITHUB_REF_NAME}" >> $GITHUB_ENV
-
-      - name: Checkout.
+      - name: Checkout
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ env.BRANCH }}
+          token: ${{ secrets.YIISOFT_GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
 
       - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2
@@ -56,10 +48,10 @@ jobs:
           tools: composer:v2
           coverage: none
 
-      - name: Determine composer cache directory on Linux.
+      - name: Determine composer cache directory on Linux
         run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
 
-      - name: Cache dependencies installed with composer.
+      - name: Cache dependencies installed with composer
         uses: actions/cache@v3
         with:
           path: ${{ env.COMPOSER_CACHE_DIR }}
@@ -67,23 +59,16 @@ jobs:
           restore-keys: |
             php${{ matrix.php }}-composer-
 
-      - name: Update composer.
+      - name: Update composer
         run: composer self-update
 
-      - name: Install dependencies with composer.
+      - name: Install dependencies with composer
         run: ${{ inputs.composer-command }}
 
       - run: vendor/bin/rector process --ansi
 
-      - name: Check for Rector modified files.
-        id: rector-git-check
-        run: echo ::set-output name=modified::$(if git diff --exit-code --no-patch; then echo "false"; else echo "true"; fi)
-
-      - uses: EndBug/add-and-commit@v9
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          add: .
-          message: "[ci-review] Apply changes from Rector action."
-          author_name: "rector-bot"
-          author_email: "rector@yiiframework.com"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          file_pattern: composer.json
+          commit_message: "Apply Rector changes (CI)"
