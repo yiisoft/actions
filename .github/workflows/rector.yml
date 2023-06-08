@@ -5,6 +5,7 @@ on:
     inputs:
       token:
         description: GitHub Token
+        default: ${{ github.token }}
         required: false
         type: string
       composer-command:
