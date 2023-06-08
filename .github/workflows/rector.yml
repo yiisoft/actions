@@ -3,11 +3,6 @@ name: rector
 on:
   workflow_call:
     inputs:
-      token:
-        description: GitHub Token
-        default: ${{ github.token }}
-        required: false
-        type: string
       composer-command:
         description: Composer command to run
         default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
@@ -25,6 +20,10 @@ on:
         description: List of extensions to PHP
         required: false
         type: string
+    secrets:
+      token:
+        description: GitHub Token
+        required: false
 
 jobs:
   rector:
@@ -41,7 +40,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          token: ${{ inputs.token }}
+          token: ${{ secrets.token }}
           ref: ${{ github.head_ref }}
 
       - name: Install PHP with extensions
