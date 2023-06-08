@@ -74,5 +74,4 @@ jobs:
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          file_pattern: composer.json
           commit_message: "Apply Rector changes (CI)"
