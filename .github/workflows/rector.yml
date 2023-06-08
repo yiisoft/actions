@@ -41,7 +41,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          token: ${{ github.token }}
+          token: ${{ inputs.token }}
           ref: ${{ github.head_ref }}
 
       - name: Install PHP with extensions
