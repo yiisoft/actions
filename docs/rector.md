@@ -40,7 +40,7 @@ jobs:
 
 By default, GitHub
 [will not trigger](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow)
-workflows run after commit into another workflows. You can change this by usage a 
+workflows run after commit into another workflows. You can change this by using a 
 [Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
 (apply the `repo` and `workflow` scopes).
 
