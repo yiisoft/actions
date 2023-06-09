@@ -22,7 +22,7 @@ on:
         type: string
     secrets:
       token:
-        description: GitHub Token
+        description: GitHub classic token with repo and workflow scopes
         required: false
 
 jobs:
