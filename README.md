@@ -12,6 +12,7 @@
 This package allows us to reuse GitHub actions, which simplifies version management.
 
 - [Composer require checker](docs/composer.md)
+- [composer.json normalizer](docs/composer-normalizer.md)
 - [PHPBench](docs/php-bench.md)
 - [PHPUnit](docs/php-unit.md)
 - [Psalm](docs/psalm.md)
