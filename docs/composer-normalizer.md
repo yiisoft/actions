@@ -14,7 +14,7 @@ on:
       - 'composer.json'
 
 jobs:
-  composer-normalize:
+  normalize:
     uses: yiisoft/actions/.github/workflows/composer-normalizer.yml@master
 ```
 
@@ -30,7 +30,7 @@ Pass your token via secrets. For example:
 
 ```yml
 jobs:
-  composer-normalize:
+  normalize:
     uses: yiisoft/actions/.github/workflows/composer-normalizer.yml@master
     secrets:
       token: ${{ secrets.REPO_GITHUB_TOKEN }}

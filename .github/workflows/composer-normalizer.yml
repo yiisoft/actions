@@ -8,7 +8,7 @@ on:
         required: false
 
 jobs:
-  composer-normalize:
+  normalize:
     name: composer-normalize
     runs-on: ubuntu-latest
     steps:
