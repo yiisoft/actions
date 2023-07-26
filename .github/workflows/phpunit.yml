@@ -31,6 +31,11 @@ on:
         description: PHP versions to test, separated by comma.
         required: true
         type: string
+      matrix-exclude:
+        description: Excluded matrix configurations.
+        default:
+        required: false
+        type: string
       phpunitConfig:
         description: PHPUnit configuration file.
         default: phpunit.xml.dist
@@ -56,6 +61,7 @@ jobs:
       matrix:
         os: ${{ fromJson(inputs.os) }}
         php: ${{ fromJson(inputs.php) }}
+        exclude: ${{ fromJson(inputs.exclude-matrix) }}
 
     steps:
       - name: Checkout.
