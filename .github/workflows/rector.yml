@@ -25,10 +25,6 @@ on:
         description: GitHub classic token with repo and workflow scopes
         required: false
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   rector:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
