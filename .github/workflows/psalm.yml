@@ -27,10 +27,6 @@ on:
         required: false
         type: string
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   psalm:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
