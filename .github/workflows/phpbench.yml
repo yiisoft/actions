@@ -36,6 +36,16 @@ on:
         default: composer:v2
         required: false
         type: string
+      report:
+        description: Report name.
+        default: default
+        required: false
+        type: string
+      config-file:
+        description: Config file name.
+        default: phpbench.json
+        required: false
+        type: string
 
 jobs:
   phpbench:
@@ -84,4 +94,4 @@ jobs:
         run: ${{ inputs.composer-command }}
 
       - name: Run phpbench.
-        run: vendor/bin/phpbench run --ansi
+        run: vendor/bin/phpbench run --ansi --report=${{ inputs.report }} --config=${{ inputs.config-file }}
