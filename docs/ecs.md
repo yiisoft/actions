@@ -10,6 +10,7 @@ on:
       - '.gitignore'
       - '.gitattributes'
       - 'infection.json.dist'
+      - 'phpunit.xml.dist'
       - 'psalm.xml'
 
   push:
@@ -21,6 +22,7 @@ on:
       - '.gitignore'
       - '.gitattributes'
       - 'infection.json.dist'
+      - 'phpunit.xml.dist'
       - 'psalm.xml'
 
 name: ecs
