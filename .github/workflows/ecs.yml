@@ -19,7 +19,7 @@ on:
         required: false
         type: string
       os:
-        description: Os to test, separated by comma.
+        description: OS to run action, separated by comma.
         required: true
         type: string
       php:
