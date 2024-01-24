@@ -23,6 +23,11 @@ on:
         default:
         required: false
         type: string
+      fix:
+        description: Fix errors automatically.
+        default: false
+        required: false
+        type: boolean
       ini-values:
         description: Initial values for PHP configuration.
         default: date.timezone='UTC'
@@ -78,4 +83,9 @@ jobs:
         run: ${{ inputs.composer-command }}
 
       - name: Run easy-coding-standard.
+        if: ${{ !inputs.fix }}
         run: vendor/bin/ecs check src tests --ansi
+
+      - name: Run easy-coding-standard with fix.
+        if: ${{ inputs.fix }}
+        run: vendor/bin/ecs check src tests --ansi --fix
