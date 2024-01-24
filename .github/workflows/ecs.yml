@@ -23,7 +23,7 @@ on:
         required: true
         type: string
       php:
-        description: PHP versions to test, separated by comma.
+        description: PHP versions to run action, separated by comma.
         required: true
         type: string
 
