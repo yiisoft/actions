@@ -80,6 +80,6 @@ jobs:
 
       - name: Push easy coding standard fixes.
         if: steps.ecs-git-check.outputs.modified == 'true'
-        run: git push
+        run: git push origin ${GITHUB_REF#refs/heads/}
         env:
           GH_PAT: ${{ secrets.token || github.token }}
