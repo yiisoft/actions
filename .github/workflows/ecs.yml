@@ -78,6 +78,10 @@ jobs:
         if: steps.ecs-git-check.outputs.modified == 'true'
         run: git commit -am "[Ecs] Apply fixes"
 
+      - name: Show branch PR.
+        if: steps.ecs-git-check.outputs.modified == 'true'
+        run: git branch --show-current
+
       - name: Push easy coding standard fixes.
         if: steps.ecs-git-check.outputs.modified == 'true'
         run: git push origin dev-${{ github.head_ref }}
