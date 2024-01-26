@@ -1,0 +1,65 @@
+name: ecs
+
+on:
+  workflow_call:
+    inputs:
+      composer-command:
+        description: Composer command to run.
+        default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+        required: false
+        type: string
+      extensions:
+        description: List of extensions to PHP.
+        default:
+        required: false
+        type: string
+      ini-values:
+        description: Initial values for PHP configuration.
+        default: date.timezone='UTC'
+        required: false
+        type: string
+      os:
+        description: OS to run action, separated by comma.
+        required: true
+        type: string
+      php:
+        description: PHP versions to run action, separated by comma.
+        required: true
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ecs:
+    name: PHP ${{ matrix.php }}-${{ matrix.os }}
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.os) }}
+        php: ${{ fromJson(inputs.php) }}
+
+    steps:
+      - name: Checkout.
+        uses: actions/checkout@v4
+
+      - name: Install PHP.
+        uses: shivammathur/setup-php@v2
+        with:
+          coverage: none
+          extensions: ${{ inputs.extensions}}
+          ini-values: ${{ inputs.ini-values }}
+          php-version: ${{ matrix.php }}
+
+      - name: Update composer.
+        run: composer self-update
+
+      - name: Install dependencies with composer.
+        run: ${{ inputs.composer-command }}
+
+      - name: Run easy-coding-standard.
+        run: vendor/bin/ecs check src tests --ansi
