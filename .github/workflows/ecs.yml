@@ -74,13 +74,13 @@ jobs:
           git config --global user.name 'Yii bot'
           git config --global user.email 'yiibot@yiiframework.com'
 
+      - name: Git checkout.
+        if: steps.ecs-git-check.outputs.modified == 'true'
+        run: git checkout -b dev-${{ github.head_ref }}
+
       - name: Commit easy coding standard fixes.
         if: steps.ecs-git-check.outputs.modified == 'true'
         run: git commit -am "[Ecs] Apply fixes"
-
-      - name: Show branch PR.
-        if: steps.ecs-git-check.outputs.modified == 'true'
-        run: git branch --show-current
 
       - name: Push easy coding standard fixes.
         if: steps.ecs-git-check.outputs.modified == 'true'
