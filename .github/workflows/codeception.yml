@@ -13,6 +13,11 @@ on:
         default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
         required: false
         type: string
+      debug:
+        description: Debug mode.
+        default: false
+        required: false
+        type: boolean
       extensions:
         description: List of PHP extensions to install.
         default:
@@ -88,10 +93,22 @@ jobs:
         run: ${{ inputs.composer-command }}
 
       - name: Run tests with codeception with code coverage.
+        continue-on-error:  ${{ inputs.debug }}
         run: vendor/bin/codecept run --coverage-xml
 
       - name: Upload coverage to Codecov.
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.php == '8.1' && inputs.debug == false
         uses: codecov/codecov-action@v3
         with:
           file: tests/_output/coverage.xml
+
+      - name: Archive codeception results.
+        if: ${{ inputs.debug }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: output
+          path: ./runtime/tests/_output
+
+      - name: Download all workflow run artifacts.
+        if: ${{ inputs.debug }}
+        uses: actions/download-artifact@v4
