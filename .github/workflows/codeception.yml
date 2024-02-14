@@ -110,9 +110,9 @@ jobs:
 
       - name: Upload coverage to Codecov.
         if: matrix.os == 'ubuntu-latest' && matrix.php == '8.1' && inputs.debug == false
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v3
         with:
-          file: tests/_output/coverage.xml
+          files: tests/_output/coverage.xml
 
       - name: Archive codeception results.
         if: ${{ inputs.debug }}
