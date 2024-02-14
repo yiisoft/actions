@@ -113,8 +113,9 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           file: tests/_output/coverage.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
           slug: ${{ github.repository }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Archive codeception results.
         if: ${{ inputs.debug }}
