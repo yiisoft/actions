@@ -112,7 +112,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.php == '8.1' && inputs.debug == false
         uses: codecov/codecov-action@v3
         with:
-          file: tests/_output/coverage.xml
+          files: tests/_output/coverage.xml
           slug: ${{ github.repository }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
