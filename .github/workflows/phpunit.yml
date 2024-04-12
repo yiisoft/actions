@@ -43,7 +43,6 @@ on:
         type: string
       codecovToken:
         description: Codecov upload token
-        default: ${{ secrets.CODECOV_TOKEN }}
         required: false
         type: string
 
