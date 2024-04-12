@@ -41,6 +41,10 @@ on:
         default: composer:v2
         required: false
         type: string
+    secrets:
+      codecovToken:
+        description: Codecov upload token
+        required: false
 
 jobs:
   phpunit:
@@ -93,6 +97,7 @@ jobs:
 
       - name: Upload coverage to Codecov.
         if: matrix.os == 'ubuntu-latest'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
+          token: ${{ secrets.codecovToken }}
           files: ./coverage.xml
