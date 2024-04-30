@@ -18,6 +18,9 @@ This package allows us to reuse GitHub actions, which simplifies version managem
 - [Rector](docs/rector.md)
 - [Infection with Static Analysis Plugin](docs/roave-infection.md)
 
+If you need help or have a question, the [Yii Forum](https://forum.yiiframework.com/c/yii-3-0/63) is a good place for that.
+You may also check out other [Yii Community Resources](https://www.yiiframework.com/community).
+
 ### Support the project
 
 [![Open Collective](https://img.shields.io/badge/Open%20Collective-sponsor-7eadf1?logo=open%20collective&logoColor=7eadf1&labelColor=555555)](https://opencollective.com/yiisoft)
