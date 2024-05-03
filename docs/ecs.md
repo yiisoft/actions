@@ -1,4 +1,4 @@
-# Using [ecs](https://github.com/easy-coding-standard/easy-coding-standard)
+# Using [ECS](https://github.com/easy-coding-standard/easy-coding-standard)
 
 ```yml
 on:
