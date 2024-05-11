@@ -1,6 +1,9 @@
 <p align="center">
     <a href="https://github.com/yiisoft" target="_blank">
-        <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
+        <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px" alt="Yii">
+    </a>
+    <a href="https://github.com/" target="_blank">
+        <img width="80" height="80" alt="GitHub Logomark" src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png">
     </a>
     <h1 align="center">Yii GitHub Actions</h1>
     <br>
