@@ -3,7 +3,7 @@
         <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px" alt="Yii">
     </a>
     <a href="https://github.com/" target="_blank">
-        <img width="80" height="80" alt="GitHub Logomark" src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png">
+        <img src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png" height="80px" alt="GitHub">
     </a>
     <h1 align="center">Yii GitHub Actions</h1>
     <br>
