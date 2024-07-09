@@ -8,6 +8,11 @@ on:
         default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
         required: false
         type: string
+      bin-name:
+        description: Binary name
+        default: roave-infection-static-analysis-plugin
+        required: false
+        type: string
       extensions:
         description: List of extensions to PHP.
         default:
