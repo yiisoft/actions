@@ -20,6 +20,9 @@ on:
         description: List of extensions to PHP
         required: false
         type: string
+      repository:
+        type: string
+        required: false
     secrets:
       token:
         description: GitHub classic token with repo and workflow scopes
@@ -42,6 +45,7 @@ jobs:
         with:
           token: ${{ secrets.token || github.token }}
           ref: ${{ github.head_ref }}
+          repository: ${{ inputs.repository }}
 
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
