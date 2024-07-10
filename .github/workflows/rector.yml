@@ -79,4 +79,4 @@ jobs:
         with:
           commit_message: "Apply Rector changes (CI)"
           file_pattern: '*.php'
-          repository: ${{ inputs.repository }}
+          disable_globbing: true
