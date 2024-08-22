@@ -41,6 +41,11 @@ on:
         default: composer:v2
         required: false
         type: string
+      codecovVerbose:
+        description: Specify whether the Codecov output should be verbose.
+        default: false
+        required: false
+        type: boolean
     secrets:
       codecovToken:
         description: Codecov upload token
@@ -101,3 +106,4 @@ jobs:
         with:
           token: ${{ secrets.codecovToken }}
           files: ./coverage.xml
+          verbose: ${{ inputs.codecovVerbose }}
