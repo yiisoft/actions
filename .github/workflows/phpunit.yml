@@ -43,6 +43,7 @@ on:
         type: string
       codecovVerbose:
         description: Specify whether the Codecov output should be verbose.
+        default: false
         required: false
         type: boolean
     secrets:
