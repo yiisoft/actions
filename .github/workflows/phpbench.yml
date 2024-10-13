@@ -46,6 +46,19 @@ on:
         default: phpbench.json
         required: false
         type: string
+      tag-name:
+        description: Tag name for baseline creation.
+        required: false
+        type: string
+      ref-name:
+        description: Baseline reference name (tag-name) to compare with.
+        required: false
+        type: string
+      baseline-assertion:
+        description: Baseline assertion function
+        default: variant.mode <= baseline.mode +/- 5%
+        required: false
+        type: string
 
 jobs:
   phpbench:
@@ -59,6 +72,13 @@ jobs:
         php: ${{ fromJson(inputs.php) }}
 
     steps:
+      - name: Checking the correctness of the configuration.
+        run: |
+          if [ -n "${{ inputs.tag-name }}" ] && [ -n "${{ inputs.ref-name }}" ]; then
+            echo "Only one of tag-name or ref-name can be set in configuration."
+            exit 1
+          fi
+
       - name: Checkout.
         uses: actions/checkout@v4
 
@@ -94,4 +114,34 @@ jobs:
         run: ${{ inputs.composer-command }}
 
       - name: Run phpbench.
-        run: vendor/bin/phpbench run --ansi --report=${{ inputs.report }} --config=${{ inputs.config-file }}
+        run: |
+          args=""
+          if [ -n "${{ inputs.tag-name }}" ]; then
+            args="--tag=${{ inputs.tag-name }}"
+          fi
+
+          if [ -n "${{ inputs.ref-name }}" ]; then
+            args="--ref=${{ inputs.ref-name }}"
+
+            if [ -n "${{ inputs.baseline-assertion }}" ]; then
+              args="$args --assert=${{ inputs.baseline-assertion }}"
+            fi
+          fi
+
+          tagParameter="--tag=${{ inputs.tag-name }}"
+          vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args > phpbench.log
+
+      - name: Add comment to PR based on exit code and output
+        if: github.event_name == 'pull_request'
+        run: |
+          output=$(cat command_output.txt)
+
+          if [ "${{ steps.run_command.outcome }}" == "success" ]; then
+            COMMENT="Benchmark completed successfully:\n\n\`\`\`\n$output\n\`\`\`"
+          else
+            COMMENT="Benchmark execution time difference is too big:\n\n\`\`\`\n$output\n\`\`\`"
+          fi
+
+          gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
