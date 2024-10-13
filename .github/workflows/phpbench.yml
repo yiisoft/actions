@@ -46,6 +46,23 @@ on:
         default: phpbench.json
         required: false
         type: string
+      tag-name:
+        description: Tag name for baseline creation.
+        required: false
+        type: string
+      ref-name:
+        description: Baseline reference name (tag-name) to compare with.
+        required: false
+        type: string
+      baseline-assertion:
+        description: Baseline assertion function
+        default: variant.mode <= baseline.mode +/- 5%
+        required: false
+        type: string
+    secrets:
+      token:
+        description: GitHub classic token with PR commenting permission
+        required: false
 
 jobs:
   phpbench:
@@ -93,5 +110,75 @@ jobs:
       - name: Install dependencies with composer.
         run: ${{ inputs.composer-command }}
 
-      - name: Run phpbench.
-        run: vendor/bin/phpbench run --ansi --report=${{ inputs.report }} --config=${{ inputs.config-file }}
+      - name: Restore PhpBench baseline data.
+        if: inputs.ref-name != ''
+        uses: actions/cache/restore@v4
+        with:
+          key: php${{ matrix.php }}-phpbech-baseline-${{ inputs.ref-name }}
+          path: .phpbench
+
+      - name: Run PhpBench.
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          args=""
+          if [ -n "${{ inputs.tag-name }}" ]; then
+            args="--tag=${{ inputs.tag-name }}"
+          fi
+
+          if [ -n "${{ inputs.ref-name }}" ]; then
+            args="--ref=${{ inputs.ref-name }}"
+
+            if [ -n "${{ inputs.baseline-assertion }}" ]; then
+              args="$args --assert=${{ inputs.baseline-assertion }}"
+            fi
+          fi
+
+          vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args > phpbench.log
+          if [ $? -ne 0 ]; then
+            echo "PHPBench execution failed"
+            exit 1
+          fi
+
+      - name: Run PhpBench.
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $args = ""
+
+          if (-not [string]::IsNullOrWhiteSpace("${{ inputs.tag-name }}")) {
+            $args = "--tag=${{ inputs.tag-name }}"
+          }
+
+          if (-not [string]::IsNullOrWhiteSpace("${{ inputs.ref-name }}")) {
+            $args = "--ref=${{ inputs.ref-name }}"
+
+            if (-not [string]::IsNullOrWhiteSpace("${{ inputs.baseline-assertion }}")) {
+              $args += " --assert=${{ inputs.baseline-assertion }}"
+            }
+          }
+
+          & vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args | Out-File -FilePath phpbench.log -Encoding utf8
+
+      - name: Save PhpBench baseline data.
+        if: inputs.tag-name != ''
+        uses: actions/cache/save@v4
+        with:
+          key: php${{ matrix.php }}-phpbech-baseline-${{ inputs.tag-name }}
+          path: .phpbench
+
+      - name: Set up token to environment variable
+        run: echo "TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Add comment to PR.
+        if: github.event_name == 'pull_request' && env.TOKEN != ''
+        uses: mshick/add-pr-comment@v2
+        with:
+          message: |
+            Benchmark completed successfully:
+            ```
+            << OUTPUT >>
+            ```
+          message-path: phpbench.log
+          find: |
+            << OUTPUT >>
+          repo-token: ${{ secrets.token }}
