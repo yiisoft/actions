@@ -59,10 +59,10 @@ on:
         default: variant.mode <= baseline.mode +/- 5%
         required: false
         type: string
+    secrets:
       token:
-        description: Token with ability to create PR comments
+        description: GitHub classic token with PR commenting permission
         required: false
-        type: string
 
 jobs:
   phpbench:
@@ -154,4 +154,4 @@ jobs:
           message-path: phpbench.log
           find: |
             << OUTPUT >>
-          repo-token: ${{ inputs.token }}
+          repo-token: ${{ secrets.token }}
