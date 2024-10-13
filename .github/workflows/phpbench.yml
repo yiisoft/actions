@@ -59,6 +59,10 @@ on:
         default: variant.mode <= baseline.mode +/- 5%
         required: false
         type: string
+      token:
+        description: Token with ability to create PR comments
+        required: false
+        type: string
 
 jobs:
   phpbench:
@@ -138,17 +142,16 @@ jobs:
           key: php${{ matrix.php }}-phpbech-baseline-${{ inputs.ref-name }}
           path: .phpbench
 
-      - name: Add comment to PR based on exit code and output
+      - name: Add comment to PR.
         if: github.event_name == 'pull_request' && secrets.GITHUB_TOKEN != ''
-        run: |
-          output=$(cat command_output.txt)
-
-          if [ "${{ steps.run_command.outcome }}" == "success" ]; then
-            COMMENT="Benchmark completed successfully:\n\n\`\`\`\n$output\n\`\`\`"
-          else
-            COMMENT="Benchmark execution time difference is too big:\n\n\`\`\`\n$output\n\`\`\`"
-          fi
-
-          gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: mshick/add-pr-comment@v2
+        with:
+          message: |
+            Benchmark completed successfully:
+            ```
+            << OUTPUT >>
+            ```
+          message-path: phpbench.log
+          find: |
+            << OUTPUT >>
+          repo-token: ${{ inputs.token }}
