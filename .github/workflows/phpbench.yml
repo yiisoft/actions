@@ -146,14 +146,14 @@ jobs:
           $args = ""
 
           if (${{ inputs.tag-name }} -ne "") {
-            $args += "--tag=${{ inputs.tag-name }} "
+            $args = "--tag=${{ inputs.tag-name }} "
           }
 
           if (${{ inputs.ref-name }} -ne "") {
-            $args += "--ref=${{ inputs.ref-name }} "
+            $args = "--ref=${{ inputs.ref-name }} "
 
-            if (${{ inputs.baseline-assertion }} -ne "") {
-              $args += "--assert=${{ inputs.baseline-assertion }} "
+            if (-not [string]::IsNullOrWhiteSpace("${{ inputs.baseline-assertion }}")) {
+              $args += " --assert=${{ inputs.baseline-assertion }}"
             }
           }
 
