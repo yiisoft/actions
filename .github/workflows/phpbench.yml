@@ -133,7 +133,7 @@ jobs:
             fi
           fi
 
-          vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} env.PHPBENCH_ARGS > phpbench.log
+          vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args > phpbench.log
 
       - name: Prepare PhpBench arguments
         if: matrix.os == 'windows-latest'
