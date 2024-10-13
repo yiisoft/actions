@@ -145,11 +145,11 @@ jobs:
         run: |
           $args = ""
 
-          if (${{ inputs.tag-name }} -ne "") {
+          if (-not [string]::IsNullOrWhiteSpace("${{ inputs.tag-name }}")) {
             $args = "--tag=${{ inputs.tag-name }} "
           }
 
-          if (${{ inputs.ref-name }} -ne "") {
+          if (-not [string]::IsNullOrWhiteSpace("${{ inputs.ref-name }}")) {
             $args = "--ref=${{ inputs.ref-name }} "
 
             if (-not [string]::IsNullOrWhiteSpace("${{ inputs.baseline-assertion }}")) {
