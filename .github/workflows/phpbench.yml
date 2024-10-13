@@ -120,9 +120,6 @@ jobs:
       - name: Run PhpBench.
         if: matrix.os == 'ubuntu-latest'
         run: |
-          ls -la .
-          ls -la .phpbench
-
           args=""
           if [ -n "${{ inputs.tag-name }}" ]; then
             args="--tag=${{ inputs.tag-name }}"
@@ -164,7 +161,7 @@ jobs:
 
       - name: Save PhpBench baseline data.
         if: inputs.tag-name != ''
-        uses: actions/cache/restore@v4
+        uses: actions/cache/save@v4
         with:
           key: php${{ matrix.php }}-phpbech-baseline-${{ inputs.tag-name }}
           path: .phpbench
