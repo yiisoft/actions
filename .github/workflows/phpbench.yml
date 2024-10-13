@@ -142,8 +142,11 @@ jobs:
           key: php${{ matrix.php }}-phpbech-baseline-${{ inputs.ref-name }}
           path: .phpbench
 
+      - name: Set up token to environment variable
+        run: echo "TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+
       - name: Add comment to PR.
-        if: github.event_name == 'pull_request' && secrets.GITHUB_TOKEN != ''
+        if: github.event_name == 'pull_request' && env.TOKEN != ''
         uses: mshick/add-pr-comment@v2
         with:
           message: |
