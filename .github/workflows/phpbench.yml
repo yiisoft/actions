@@ -117,7 +117,8 @@ jobs:
           key: php${{ matrix.php }}-phpbech-baseline-${{ inputs.ref-name }}
           path: .phpbench
 
-      - name: Run phpbench.
+      - name: Prepare PhpBench arguments
+        if: matrix.os == 'ubuntu-latest'
         run: |
           args=""
           if [ -n "${{ inputs.tag-name }}" ]; then
@@ -132,7 +133,27 @@ jobs:
             fi
           fi
 
-          vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args > phpbench.log
+          vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} env.PHPBENCH_ARGS > phpbench.log
+
+      - name: Prepare PhpBench arguments
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $args = ""
+
+          if (${{ inputs.tag-name }} -ne "") {
+            $args += "--tag=${{ inputs.tag-name }} "
+          }
+
+          if (${{ inputs.ref-name }} -ne "") {
+            $args += "--ref=${{ inputs.ref-name }} "
+
+            if (${{ inputs.baseline-assertion }} -ne "") {
+              $args += "--assert=${{ inputs.baseline-assertion }} "
+            }
+          }
+
+          & vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args | Out-File -FilePath phpbench.log -Encoding utf8
 
       - name: Save PhpBench baseline data.
         if: inputs.tag-name != ''
