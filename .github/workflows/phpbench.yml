@@ -134,6 +134,10 @@ jobs:
           fi
 
           vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args > phpbench.log
+          if [ $? -ne 0 ]; then
+            echo "PHPBench execution failed"
+            exit 1
+          fi
 
       - name: Run PhpBench.
         if: matrix.os == 'windows-latest'
