@@ -72,13 +72,6 @@ jobs:
         php: ${{ fromJson(inputs.php) }}
 
     steps:
-      - name: Checking the correctness of the configuration.
-        run: |
-          if [ -n "${{ inputs.tag-name }}" ] && [ -n "${{ inputs.ref-name }}" ]; then
-            echo "Only one of tag-name or ref-name can be set in configuration."
-            exit 1
-          fi
-
       - name: Checkout.
         uses: actions/checkout@v4
 
@@ -113,6 +106,13 @@ jobs:
       - name: Install dependencies with composer.
         run: ${{ inputs.composer-command }}
 
+      - name: Restore PhpBench baseline data.
+        if: inputs.ref-name != ''
+        uses: actions/cache/restore@v4
+        with:
+          key: php${{ matrix.php }}-phpbech-baseline-${{ inputs.ref-name }}
+          path: .phpbench
+
       - name: Run phpbench.
         run: |
           args=""
@@ -130,6 +130,13 @@ jobs:
 
           tagParameter="--tag=${{ inputs.tag-name }}"
           vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args > phpbench.log
+
+      - name: Save PhpBench baseline data.
+        if: inputs.tag-name != ''
+        uses: actions/cache/restore@v4
+        with:
+          key: php${{ matrix.php }}-phpbech-baseline-${{ inputs.ref-name }}
+          path: .phpbench
 
       - name: Add comment to PR based on exit code and output
         if: github.event_name == 'pull_request' && secrets.GITHUB_TOKEN != ''
