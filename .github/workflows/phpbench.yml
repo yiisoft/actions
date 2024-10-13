@@ -163,7 +163,7 @@ jobs:
         if: inputs.tag-name != ''
         uses: actions/cache/restore@v4
         with:
-          key: php${{ matrix.php }}-phpbech-baseline-${{ inputs.ref-name }}
+          key: php${{ matrix.php }}-phpbech-baseline-${{ inputs.tag-name }}
           path: .phpbench
 
       - name: Set up token to environment variable
