@@ -132,7 +132,7 @@ jobs:
           vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args > phpbench.log
 
       - name: Add comment to PR based on exit code and output
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && secrets.GITHUB_TOKEN != ''
         run: |
           output=$(cat command_output.txt)
 
