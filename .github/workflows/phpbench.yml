@@ -117,7 +117,7 @@ jobs:
           key: php${{ matrix.php }}-phpbech-baseline-${{ inputs.ref-name }}
           path: .phpbench
 
-      - name: Prepare PhpBench arguments
+      - name: Run PhpBench.
         if: matrix.os == 'ubuntu-latest'
         run: |
           args=""
@@ -135,7 +135,7 @@ jobs:
 
           vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args > phpbench.log
 
-      - name: Prepare PhpBench arguments
+      - name: Run PhpBench.
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
