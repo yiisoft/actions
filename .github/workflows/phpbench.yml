@@ -76,9 +76,6 @@ jobs:
         php: ${{ fromJson(inputs.php) }}
 
     steps:
-      - name: Checkout.
-        uses: actions/checkout@v4
-
       - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2
         with:
@@ -107,33 +104,73 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
+      - name: Check if we need to create a baseline for a PR (Linux).
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.ref }}" != "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
+            echo "WITH_BENCH_BASELINE=1" >> $GITHUB_ENV
+          else
+            echo "WITH_BENCH_BASELINE=0" >> $GITHUB_ENV
+          fi
+
+      - name: Check if we need to create a baseline for a PR (Windows).
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          if (("${{ github.event_name }}" -eq "pull_request") -and ("${{ github.ref }}" -ne "refs/heads/${{ github.event.repository.default_branch }}")) {
+            Set-Content -Path $env:GITHUB_ENV -Value "WITH_BENCH_BASELINE=1" -NoNewline
+          } else {
+            Set-Content -Path $env:GITHUB_ENV -Value "WITH_BENCH_BASELINE=0" -NoNewline
+          }
+
+      - name: "Baseline creation: Checkout default branch."
+        uses: actions/checkout@v4
+        if: "${{ env.WITH_BENCH_BASELINE }}" == '1'
+        with:
+          path: default
+          ref: github.event.repository.default_branch
+
+      - name: "Baseline creation: Install dependencies with composer."
+        if: "${{ env.WITH_BENCH_BASELINE }}" == '1'
+        run: ${{ inputs.composer-command }}
+        with:
+          path: default
+
+      - name: "Baseline creation: Run PhpBench."
+        if: "${{ env.WITH_BENCH_BASELINE }}" == '1'
+        run: vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} --tag=default
+        with:
+          path: default
+
+      - name: Checkout.
+        uses: actions/checkout@v4
+        with:
+          path: current
+
       - name: Install dependencies with composer.
         run: ${{ inputs.composer-command }}
-
-      - name: Restore PhpBench baseline data.
-        if: inputs.ref-name != ''
-        uses: actions/cache/restore@v4
         with:
-          key: php${{ matrix.php }}-phpbech-baseline-${{ inputs.ref-name }}
-          path: .phpbench
+          path: current
 
-      - name: Run PhpBench.
+      - name: Copy PhpBench baseline data (Linux).
+        if: "${{ env.WITH_BENCH_BASELINE }}" == '1' && matrix.os == 'ubuntu-latest'
+        run: cp -r default/.phpbench current/
+
+      - name: Copy PhpBench baseline data (Windows).
+        if: "${{ env.WITH_BENCH_BASELINE }}" == '1' && matrix.os == 'windows-latest'
+        shell: pwsh
+        run: Copy-Item -Path default/.phpbench -Destination current -Recurse
+
+      - name: "Run PhpBench (Linux)."
         if: matrix.os == 'ubuntu-latest'
         run: |
           args=""
-          if [ -n "${{ inputs.tag-name }}" ]; then
-            args="--tag=${{ inputs.tag-name }}"
-          fi
-
-          if [ -n "${{ inputs.ref-name }}" ]; then
-            args="--ref=${{ inputs.ref-name }}"
-
-            if [ -n "${{ inputs.baseline-assertion }}" ]; then
-              args="$args --assert=${{ inputs.baseline-assertion }}"
-            fi
+          if [ "${{ env.WITH_BENCH_BASELINE }}" == '1' ]; then
+            args="--ref=default --assert=${{ inputs.baseline-assertion }}"
           fi
 
           vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args > phpbench.log
+
           if [ $? -ne 0 ]; then
             echo "PHPBench execution failed"
             exit 1
@@ -145,26 +182,11 @@ jobs:
         run: |
           $args = ""
 
-          if (-not [string]::IsNullOrWhiteSpace("${{ inputs.tag-name }}")) {
-            $args = "--tag=${{ inputs.tag-name }}"
-          }
-
-          if (-not [string]::IsNullOrWhiteSpace("${{ inputs.ref-name }}")) {
-            $args = "--ref=${{ inputs.ref-name }}"
-
-            if (-not [string]::IsNullOrWhiteSpace("${{ inputs.baseline-assertion }}")) {
-              $args += " --assert=${{ inputs.baseline-assertion }}"
-            }
+          if (${{ env.WITH_BENCH_BASELINE }} -eq '1') {
+            $args = "--ref=default --assert=${{ inputs.baseline-assertion }}"
           }
 
           & vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args | Out-File -FilePath phpbench.log -Encoding utf8
-
-      - name: Save PhpBench baseline data.
-        if: inputs.tag-name != ''
-        uses: actions/cache/save@v4
-        with:
-          key: php${{ matrix.php }}-phpbech-baseline-${{ inputs.tag-name }}
-          path: .phpbench
 
       - name: Set up token to environment variable
         run: echo "TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
