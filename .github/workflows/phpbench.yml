@@ -196,12 +196,5 @@ jobs:
         if: always() && github.event_name == 'pull_request' && env.TOKEN != ''
         uses: mshick/add-pr-comment@v2
         with:
-          message: |
-            Benchmark completed successfully:
-            ```
-            << OUTPUT >>
-            ```
           message-path: phpbench.log
-          find: |
-            << OUTPUT >>
           repo-token: ${{ secrets.token }}
