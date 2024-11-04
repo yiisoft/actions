@@ -166,7 +166,7 @@ jobs:
         working-directory: ./current
         run: |
           if [ "${{ env.WITH_BENCH_BASELINE }}" == '1' ]; then
-            vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} --ref=default --assert=\"${{ inputs.baseline-assertion }}\" > phpbench.log
+            vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} --ref=default --assert="${{ inputs.baseline-assertion }}" > phpbench.log
           else
             vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} > phpbench.log
           fi
