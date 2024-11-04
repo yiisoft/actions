@@ -128,7 +128,7 @@ jobs:
         if: ${{ env.WITH_BENCH_BASELINE == '1' }}
         with:
           path: default
-          ref: github.event.repository.default_branch
+          ref: ${{ github.event.repository.default_branch }}
 
       - name: "Baseline creation: Install dependencies with composer."
         if: ${{ env.WITH_BENCH_BASELINE == '1' }}
