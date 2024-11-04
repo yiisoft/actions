@@ -172,10 +172,9 @@ jobs:
             vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} > phpbench.log
           fi
 
-          if [ $? -ne 0 ]; then
-            echo "PHPBench execution failed"
-            exit 1
-          fi
+          exit_code=$?
+          echo "EXIT_CODE=$exit_code" >> $GITHUB_ENV
+          exit $exit_code
 
       - name: "Run PhpBench (Windows)."
         if: matrix.os == 'windows-latest'
@@ -187,6 +186,10 @@ jobs:
           } else {
             & php vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} | Out-File -FilePath phpbench.log -Encoding utf8
           }
+
+          $exitCode = $LASTEXITCODE
+          echo "EXIT_CODE=$exitCode" >> $GITHUB_ENV
+          exit $exitCode
 
       - name: Set up token to environment variable
         if: always()
