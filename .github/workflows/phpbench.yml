@@ -199,3 +199,7 @@ jobs:
           preformatted: true
           message-path: current/phpbench.log
           repo-token: ${{ secrets.token }}
+
+      - name: Fail if PhpBench failed.
+        if: failure()
+        run: exit 1
