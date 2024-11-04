@@ -183,7 +183,7 @@ jobs:
           $args = ""
 
           if (${{ env.WITH_BENCH_BASELINE }} -eq '1') {
-            $args = "--ref=default --assert=`"${{ inputs.baseline-assertion }}`""
+            $args = "--assert=`"${{ inputs.baseline-assertion }}`" --ref=default"
           }
 
           & php vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args | Out-File -FilePath phpbench.log -Encoding utf8
