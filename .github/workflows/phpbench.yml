@@ -133,14 +133,12 @@ jobs:
       - name: "Baseline creation: Install dependencies with composer."
         if: ${{ env.WITH_BENCH_BASELINE == '1' }}
         run: ${{ inputs.composer-command }}
-        with:
-          path: default
+        working-directory: default
 
       - name: "Baseline creation: Run PhpBench."
         if: ${{ env.WITH_BENCH_BASELINE == '1' }}
         run: vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} --tag=default
-        with:
-          path: default
+        working-directory: default
 
       - name: Checkout.
         uses: actions/checkout@v4
