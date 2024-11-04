@@ -125,19 +125,19 @@ jobs:
 
       - name: "Baseline creation: Checkout default branch."
         uses: actions/checkout@v4
-        if: "${{ env.WITH_BENCH_BASELINE }}" == '1'
+        if: ${{ env.WITH_BENCH_BASELINE == '1' }}
         with:
           path: default
           ref: github.event.repository.default_branch
 
       - name: "Baseline creation: Install dependencies with composer."
-        if: "${{ env.WITH_BENCH_BASELINE }}" == '1'
+        if: ${{ env.WITH_BENCH_BASELINE == '1' }}
         run: ${{ inputs.composer-command }}
         with:
           path: default
 
       - name: "Baseline creation: Run PhpBench."
-        if: "${{ env.WITH_BENCH_BASELINE }}" == '1'
+        if: ${{ env.WITH_BENCH_BASELINE == '1' }}
         run: vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} --tag=default
         with:
           path: default
@@ -153,11 +153,11 @@ jobs:
           path: current
 
       - name: Copy PhpBench baseline data (Linux).
-        if: "${{ env.WITH_BENCH_BASELINE }}" == '1' && matrix.os == 'ubuntu-latest'
+        if: ${{ env.WITH_BENCH_BASELINE == '1' && matrix.os == 'ubuntu-latest' }}
         run: cp -r default/.phpbench current/
 
       - name: Copy PhpBench baseline data (Windows).
-        if: "${{ env.WITH_BENCH_BASELINE }}" == '1' && matrix.os == 'windows-latest'
+        if: ${{ env.WITH_BENCH_BASELINE == '1' && matrix.os == 'windows-latest' }}
         shell: pwsh
         run: Copy-Item -Path default/.phpbench -Destination current -Recurse
 
