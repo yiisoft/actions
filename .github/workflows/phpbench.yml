@@ -38,7 +38,7 @@ on:
         type: string
       report:
         description: Report name.
-        default: aggregate
+        default: '"extends": "aggregate", "cols": [ "benchmark", "tag", "subject", "mean", "mode" ]'
         required: false
         type: string
       config-file:
