@@ -204,5 +204,5 @@ jobs:
           repo-token: ${{ secrets.token }}
 
       - name: Fail if PhpBench failed.
-        if: failure()
+        if: always()
         run: exit 1
