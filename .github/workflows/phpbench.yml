@@ -147,8 +147,7 @@ jobs:
 
       - name: Install dependencies with composer.
         run: ${{ inputs.composer-command }}
-        with:
-          path: ./current
+        working-directory: ./current
 
       - name: Copy PhpBench baseline data (Linux).
         if: ${{ env.WITH_BENCH_BASELINE == '1' && matrix.os == 'ubuntu-latest' }}
