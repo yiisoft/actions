@@ -205,4 +205,4 @@ jobs:
 
       - name: Fail if PhpBench failed.
         if: always()
-        run: exit 1
+        run: exit ${{ env.EXIT_CODE }}
