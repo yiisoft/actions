@@ -38,7 +38,7 @@ on:
         type: string
       report:
         description: Report name.
-        default: default
+        default: aggregate
         required: false
         type: string
       config-file:
