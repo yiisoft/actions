@@ -165,7 +165,7 @@ jobs:
         run: |
           args=""
           if [ "${{ env.WITH_BENCH_BASELINE }}" == '1' ]; then
-            args="--ref=default --assert=${{ inputs.baseline-assertion }}"
+            args="--ref=default --assert=\"${{ inputs.baseline-assertion }}\""
           fi
 
           vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args > phpbench.log
