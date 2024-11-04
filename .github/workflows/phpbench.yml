@@ -163,12 +163,11 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         working-directory: ./current
         run: |
-          args=""
           if [ "${{ env.WITH_BENCH_BASELINE }}" == '1' ]; then
-            args="--assert=\"${{ inputs.baseline-assertion }}\" --ref=default"
+            vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} --assert=\"${{ inputs.baseline-assertion }}\" --ref=default > phpbench.log
+          else
+            vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} > phpbench.log
           fi
-
-          vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args > phpbench.log
 
           if [ $? -ne 0 ]; then
             echo "PHPBench execution failed"
@@ -180,13 +179,11 @@ jobs:
         shell: pwsh
         working-directory: ./current
         run: |
-          $args = ""
-
           if (${{ env.WITH_BENCH_BASELINE }} -eq '1') {
-            $args = "--assert=`"${{ inputs.baseline-assertion }}`" --ref=default"
+            & php vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} --assert=`"${{ inputs.baseline-assertion }}`" --ref=default | Out-File -FilePath phpbench.log -Encoding utf8
+          } else {
+            & php vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} | Out-File -FilePath phpbench.log -Encoding utf8
           }
-
-          & php vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args | Out-File -FilePath phpbench.log -Encoding utf8
 
       - name: Set up token to environment variable
         run: echo "TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
