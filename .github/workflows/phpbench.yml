@@ -183,7 +183,7 @@ jobs:
             $args = "--ref=default --assert=${{ inputs.baseline-assertion }}"
           }
 
-          & vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args | Out-File -FilePath phpbench.log -Encoding utf8
+          & php vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} $args | Out-File -FilePath phpbench.log -Encoding utf8
 
       - name: Set up token to environment variable
         run: echo "TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
