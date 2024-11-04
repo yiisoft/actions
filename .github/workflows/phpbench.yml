@@ -71,6 +71,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os: ${{ fromJson(inputs.os) }}
         php: ${{ fromJson(inputs.php) }}
@@ -160,6 +161,7 @@ jobs:
 
       - name: "Run PhpBench (Linux)."
         if: matrix.os == 'ubuntu-latest'
+        working-directory: ./current
         run: |
           args=""
           if [ "${{ env.WITH_BENCH_BASELINE }}" == '1' ]; then
@@ -176,6 +178,7 @@ jobs:
       - name: Run PhpBench.
         if: matrix.os == 'windows-latest'
         shell: pwsh
+        working-directory: ./current
         run: |
           $args = ""
 
