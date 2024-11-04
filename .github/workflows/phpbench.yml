@@ -145,7 +145,7 @@ jobs:
 
       - name: "Baseline creation: Run PhpBench."
         if: ${{ env.WITH_BENCH_BASELINE == '1' }}
-        run: vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} --tag=default
+        run: vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} --tag=default
         working-directory: default
 
       - name: Install dependencies with composer.
@@ -166,9 +166,9 @@ jobs:
         working-directory: ./current
         run: |
           if [ "${{ env.WITH_BENCH_BASELINE }}" == '1' ]; then
-            vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} --ref=default --assert="${{ inputs.baseline-assertion }}" > phpbench.log
+            vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} --ref=default --assert="${{ inputs.baseline-assertion }}" > phpbench.log
           else
-            vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} > phpbench.log
+            vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} > phpbench.log
           fi
 
           if [ $? -ne 0 ]; then
@@ -182,9 +182,9 @@ jobs:
         working-directory: ./current
         run: |
           if (${{ env.WITH_BENCH_BASELINE }} -eq '1') {
-            & php vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} --assert="${{ inputs.baseline-assertion }}" --ref=default | Out-File -FilePath phpbench.log -Encoding utf8
+            & php vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} --assert="${{ inputs.baseline-assertion }}" --ref=default | Out-File -FilePath phpbench.log -Encoding utf8
           } else {
-            & php vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} | Out-File -FilePath phpbench.log -Encoding utf8
+            & php vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} | Out-File -FilePath phpbench.log -Encoding utf8
           }
 
       - name: Set up token to environment variable
