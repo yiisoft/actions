@@ -194,8 +194,7 @@ jobs:
 
       - name: Add comment to PR.
         if: always() && github.event_name == 'pull_request' && env.TOKEN != ''
-        working-directory: ./current
         uses: mshick/add-pr-comment@v2
         with:
-          message-path: phpbench.log
+          message-path: current/phpbench.log
           repo-token: ${{ secrets.token }}
