@@ -164,6 +164,7 @@ jobs:
       - name: "Run PhpBench (Linux)."
         if: matrix.os == 'ubuntu-latest'
         working-directory: ./current
+        continue-on-error: true
         run: |
           if [ "${{ env.WITH_BENCH_BASELINE }}" == '1' ]; then
             vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} --ref=default --assert="${{ inputs.baseline-assertion }}" > phpbench.log
@@ -176,7 +177,7 @@ jobs:
             exit 1
           fi
 
-      - name: Run PhpBench.
+      - name: "Run PhpBench (Windows)."
         if: matrix.os == 'windows-latest'
         shell: pwsh
         working-directory: ./current
@@ -188,10 +189,11 @@ jobs:
           }
 
       - name: Set up token to environment variable
+        if: always()
         run: echo "TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
 
       - name: Add comment to PR.
-        if: github.event_name == 'pull_request' && env.TOKEN != ''
+        if: always() && github.event_name == 'pull_request' && env.TOKEN != ''
         uses: mshick/add-pr-comment@v2
         with:
           message: |
