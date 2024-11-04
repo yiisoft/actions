@@ -86,12 +86,19 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: ${{ inputs.tools }}
 
+      - name: Checkout.
+        uses: actions/checkout@v4
+        with:
+          path: ./current
+
       - name: Determine composer cache directory on Linux.
         if: matrix.os == 'ubuntu-latest'
+        working-directory: default
         run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
 
       - name: Determine composer cache directory on Windows.
         if: matrix.os == 'windows-latest'
+        working-directory: default
         run: echo "COMPOSER_CACHE_DIR=~\AppData\Local\Composer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Cache dependencies installed with composer.
@@ -141,11 +148,6 @@ jobs:
         run: vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} --tag=default
         working-directory: default
 
-      - name: Checkout.
-        uses: actions/checkout@v4
-        with:
-          path: ./current
-
       - name: Install dependencies with composer.
         run: ${{ inputs.composer-command }}
         working-directory: ./current
@@ -164,7 +166,7 @@ jobs:
         working-directory: ./current
         run: |
           if [ "${{ env.WITH_BENCH_BASELINE }}" == '1' ]; then
-            vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} --assert=\"${{ inputs.baseline-assertion }}\" --ref=default > phpbench.log
+            vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} --ref=default --assert=\"${{ inputs.baseline-assertion }}\" > phpbench.log
           else
             vendor/bin/phpbench run --report=${{ inputs.report }} --config=${{ inputs.config-file }} > phpbench.log
           fi
