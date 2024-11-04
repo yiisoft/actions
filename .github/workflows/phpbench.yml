@@ -143,12 +143,12 @@ jobs:
       - name: Checkout.
         uses: actions/checkout@v4
         with:
-          path: current
+          path: ./current
 
       - name: Install dependencies with composer.
         run: ${{ inputs.composer-command }}
         with:
-          path: current
+          path: ./current
 
       - name: Copy PhpBench baseline data (Linux).
         if: ${{ env.WITH_BENCH_BASELINE == '1' && matrix.os == 'ubuntu-latest' }}
