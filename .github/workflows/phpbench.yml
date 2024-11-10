@@ -46,14 +46,6 @@ on:
         default: phpbench.json
         required: false
         type: string
-      tag-name:
-        description: Tag name for baseline creation.
-        required: false
-        type: string
-      ref-name:
-        description: Baseline reference name (tag-name) to compare with.
-        required: false
-        type: string
       baseline-assertion:
         description: Baseline assertion function
         default: mode(variant.time.avg) <= mode(baseline.time.avg) +/- 5%
