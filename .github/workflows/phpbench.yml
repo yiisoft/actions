@@ -15,7 +15,7 @@ on:
         type: string
       extensions:
         description: List of extensions to PHP.
-        default:
+        default: ""
         required: false
         type: string
       ini-values:
@@ -59,10 +59,6 @@ on:
         default: mode(variant.time.avg) <= mode(baseline.time.avg) +/- 5%
         required: false
         type: string
-    secrets:
-      token:
-        description: GitHub classic token with PR commenting permission
-        required: false
 
 jobs:
   phpbench:
@@ -164,17 +160,12 @@ jobs:
       - name: "Run PhpBench (Linux)."
         if: matrix.os == 'ubuntu-latest'
         working-directory: ./current
-        continue-on-error: true
         run: |
           if [ "${{ env.WITH_BENCH_BASELINE }}" == '1' ]; then
             vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} --ref=default --assert="${{ inputs.baseline-assertion }}" > phpbench.log
           else
             vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} > phpbench.log
           fi
-
-          exit_code=$?
-          echo "EXIT_CODE=$exit_code" >> $GITHUB_ENV
-          exit $exit_code
 
       - name: "Run PhpBench (Windows)."
         if: matrix.os == 'windows-latest'
@@ -186,23 +177,3 @@ jobs:
           } else {
             & php vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} | Out-File -FilePath phpbench.log -Encoding utf8
           }
-
-          $exitCode = $LASTEXITCODE
-          echo "EXIT_CODE=$exitCode" >> $GITHUB_ENV
-          exit $exitCode
-
-      - name: Set up token to environment variable
-        if: always()
-        run: echo "TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-
-      - name: Add comment to PR.
-        if: always() && github.event_name == 'pull_request' && env.TOKEN != ''
-        uses: mshick/add-pr-comment@v2
-        with:
-          preformatted: true
-          message-path: current/phpbench.log
-          repo-token: ${{ secrets.token }}
-
-      - name: Fail if PhpBench failed.
-        if: always()
-        run: exit ${{ env.EXIT_CODE }}
