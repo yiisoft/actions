@@ -15,7 +15,7 @@ on:
         type: string
       extensions:
         description: List of extensions to PHP.
-        default:
+        default: ""
         required: false
         type: string
       ini-values:
@@ -38,12 +38,25 @@ on:
         type: string
       report:
         description: Report name.
-        default: default
+        default: aggregate
         required: false
         type: string
       config-file:
         description: Config file name.
         default: phpbench.json
+        required: false
+        type: string
+      tag-name:
+        description: Tag name for baseline creation.
+        required: false
+        type: string
+      ref-name:
+        description: Baseline reference name (tag-name) to compare with.
+        required: false
+        type: string
+      baseline-assertion:
+        description: Baseline assertion function
+        default: mode(variant.time.avg) <= mode(baseline.time.avg) +/- 5%
         required: false
         type: string
 
@@ -54,14 +67,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os: ${{ fromJson(inputs.os) }}
         php: ${{ fromJson(inputs.php) }}
 
     steps:
-      - name: Checkout.
-        uses: actions/checkout@v4
-
       - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2
         with:
@@ -71,12 +82,19 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: ${{ inputs.tools }}
 
+      - name: Checkout.
+        uses: actions/checkout@v4
+        with:
+          path: ./current
+
       - name: Determine composer cache directory on Linux.
         if: matrix.os == 'ubuntu-latest'
+        working-directory: current
         run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
 
       - name: Determine composer cache directory on Windows.
         if: matrix.os == 'windows-latest'
+        working-directory: current
         run: echo "COMPOSER_CACHE_DIR=~\AppData\Local\Composer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Cache dependencies installed with composer.
@@ -90,8 +108,72 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
+      - name: Check if we need to create a baseline for a PR (Linux).
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.ref }}" != "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
+            echo "WITH_BENCH_BASELINE=1" >> $GITHUB_ENV
+          else
+            echo "WITH_BENCH_BASELINE=0" >> $GITHUB_ENV
+          fi
+
+      - name: Check if we need to create a baseline for a PR (Windows).
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          if (("${{ github.event_name }}" -eq "pull_request") -and ("${{ github.ref }}" -ne "refs/heads/${{ github.event.repository.default_branch }}")) {
+            Set-Content -Path $env:GITHUB_ENV -Value "WITH_BENCH_BASELINE=1" -NoNewline
+          } else {
+            Set-Content -Path $env:GITHUB_ENV -Value "WITH_BENCH_BASELINE=0" -NoNewline
+          }
+
+      - name: "Baseline creation: Checkout default branch."
+        uses: actions/checkout@v4
+        if: ${{ env.WITH_BENCH_BASELINE == '1' }}
+        with:
+          path: default
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: "Baseline creation: Install dependencies with composer."
+        if: ${{ env.WITH_BENCH_BASELINE == '1' }}
+        run: ${{ inputs.composer-command }}
+        working-directory: default
+
+      - name: "Baseline creation: Run PhpBench."
+        if: ${{ env.WITH_BENCH_BASELINE == '1' }}
+        run: vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} --tag=default
+        working-directory: default
+
       - name: Install dependencies with composer.
         run: ${{ inputs.composer-command }}
+        working-directory: ./current
 
-      - name: Run phpbench.
-        run: vendor/bin/phpbench run --ansi --report=${{ inputs.report }} --config=${{ inputs.config-file }}
+      - name: Copy PhpBench baseline data (Linux).
+        if: ${{ env.WITH_BENCH_BASELINE == '1' && matrix.os == 'ubuntu-latest' }}
+        run: cp -r default/.phpbench current/
+
+      - name: Copy PhpBench baseline data (Windows).
+        if: ${{ env.WITH_BENCH_BASELINE == '1' && matrix.os == 'windows-latest' }}
+        shell: pwsh
+        run: Copy-Item -Path default/.phpbench -Destination current -Recurse
+
+      - name: "Run PhpBench (Linux)."
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: ./current
+        run: |
+          if [ "${{ env.WITH_BENCH_BASELINE }}" == '1' ]; then
+            vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} --ref=default --assert="${{ inputs.baseline-assertion }}" > phpbench.log
+          else
+            vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} > phpbench.log
+          fi
+
+      - name: "Run PhpBench (Windows)."
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        working-directory: ./current
+        run: |
+          if (${{ env.WITH_BENCH_BASELINE }} -eq '1') {
+            & php vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} --assert="${{ inputs.baseline-assertion }}" --ref=default | Out-File -FilePath phpbench.log -Encoding utf8
+          } else {
+            & php vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} | Out-File -FilePath phpbench.log -Encoding utf8
+          }
