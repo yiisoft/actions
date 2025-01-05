@@ -1,0 +1,59 @@
+name: infection
+
+on:
+  workflow_call:
+    inputs:
+      extensions:
+        description: List of extensions to PHP
+        default:
+        required: false
+        type: string
+      ini-values:
+        description: Initial values for PHP configuration
+        default: date.timezone='UTC'
+        required: false
+        type: string
+      os:
+        description: Os to test, separated by comma
+        required: true
+        type: string
+      php:
+        description: PHP versions to test, separated by comma
+        required: true
+        type: string
+
+    secrets:
+      STRYKER_DASHBOARD_API_KEY:
+        required: true
+
+jobs:
+  infection:
+    name: PHP ${{ matrix.php }}-${{ matrix.os }}
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: ${{ fromJson(inputs.os) }}
+        php: ${{ fromJson(inputs.php) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install PHP with extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          extensions: ${{ inputs.extensions }}
+          ini-values: ${{ inputs.ini-values }}
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Run infection
+        run: |
+          vendor/bin/infection --threads=2 --ignore-msi-with-no-mutations --only-covered
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
