@@ -44,6 +44,7 @@ jobs:
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
         with:
+          coverage: xdebug
           extensions: ${{ inputs.extensions }}
           ini-values: ${{ inputs.ini-values }}
           php-version: ${{ matrix.php }}
