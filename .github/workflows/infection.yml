@@ -14,7 +14,7 @@ on:
         required: false
         type: string
       os:
-        description: Os to test, separated by comma
+        description: OS to test, separated by comma
         required: true
         type: string
       php:
@@ -48,7 +48,6 @@ jobs:
           extensions: ${{ inputs.extensions }}
           ini-values: ${{ inputs.ini-values }}
           php-version: ${{ matrix.php }}
-          tools: composer:v2
 
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v3
