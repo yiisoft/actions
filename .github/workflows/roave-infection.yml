@@ -68,7 +68,6 @@ jobs:
           extensions: ${{ inputs.extensions }}
           ini-values: ${{ inputs.ini-values }}
           php-version: ${{ matrix.php }}
-          tools: composer:v2
 
       - name: Determine composer cache directory on Linux.
         run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
