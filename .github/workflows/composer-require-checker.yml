@@ -47,7 +47,6 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: ${{ inputs.extensions }}
-          tools: composer:v2
           coverage: none
 
       - name: Determine composer cache directory on Linux.

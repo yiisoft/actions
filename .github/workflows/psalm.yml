@@ -48,7 +48,7 @@ jobs:
           coverage: none
           php-version: ${{ matrix.php }}
           extensions: ${{ inputs.extensions }}
-          tools: composer:v2, cs2pr
+          tools: cs2pr
 
       - name: Determine composer cache directory on Linux.
         run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV

@@ -28,7 +28,7 @@ on:
         type: string
       tools:
         description: Tools to test, separated by comma.
-        default: composer:v2
+        default:
         required: false
         type: string
 
