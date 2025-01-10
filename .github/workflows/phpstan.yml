@@ -1,0 +1,57 @@
+name: PHPStan
+
+on:
+  workflow_call:
+    inputs:
+      phpstan-config:
+        description: PHPStan configuration file.
+        default: phpstan.neon
+        required: false
+        type: string
+      extensions:
+        description: List of extensions to PHP
+        default:
+        required: false
+        type: string
+      ini-values:
+        description: Initial values for PHP configuration
+        default: date.timezone='UTC'
+        required: false
+        type: string
+      os:
+        description: OS to test, separated by comma
+        required: true
+        type: string
+      php:
+        description: PHP versions to test, separated by comma
+        required: true
+        type: string
+
+jobs:
+  phpstan:
+    name: PHP ${{ matrix.php }}-${{ matrix.os }}
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: ${{ fromJson(inputs.os) }}
+        php: ${{ fromJson(inputs.php) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install PHP with extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          coverage: xdebug
+          extensions: ${{ inputs.extensions }}
+          ini-values: ${{ inputs.ini-values }}
+          php-version: ${{ matrix.php }}
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Run static analysis
+        run: vendor/bin/phpstan analyse --configuration=${{ inputs.phpstan-config }}
