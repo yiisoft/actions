@@ -9,7 +9,7 @@ on:
         required: false
         type: string
       extensions:
-        description: List of extensions to PHP
+        description: List of PHP extensions
         default:
         required: false
         type: string
