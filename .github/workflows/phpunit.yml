@@ -15,7 +15,7 @@ on:
         type: string
       extensions:
         description: List of extensions to PHP.
-        default:
+        default: '["8.1","8.2","8.3","8.4"]'
         required: false
         type: string
       ini-values:

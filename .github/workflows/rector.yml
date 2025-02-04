@@ -18,6 +18,7 @@ on:
         type: string
       extensions:
         description: List of extensions to PHP
+        default: '["8.4"]'
         required: false
         type: string
       repository:
@@ -70,6 +71,11 @@ jobs:
 
       - name: Install dependencies with composer
         run: ${{ inputs.composer-command }}
+
+      - name: Download rector config
+        shell: bash
+        run: |
+          wget https://raw.githubusercontent.com/yiisoft/actions/add-php-84/.rector.php -O .rector.php
 
       - run: vendor/bin/rector process --ansi
 

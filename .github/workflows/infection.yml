@@ -19,6 +19,7 @@ on:
         type: string
       php:
         description: PHP versions to test, separated by comma
+        default: '["8.4"]'
         required: true
         type: string
 
