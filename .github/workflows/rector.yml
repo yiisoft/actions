@@ -10,15 +10,16 @@ on:
         type: string
       os:
         description: OS to test, separated by comma
-        required: true
+        default: '["ubuntu-latest"]'
+        required: false
         type: string
       php:
         description: PHP versions to test, separated by comma
-        required: true
+        default: '["8.4"]'
+        required: false
         type: string
       extensions:
         description: List of extensions to PHP
-        default: '["8.4"]'
         required: false
         type: string
       repository:
