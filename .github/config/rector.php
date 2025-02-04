@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 return static function (\Rector\Config\RectorConfig $rectorConfig): void {
     $rectorConfig->parallel();
+
     $rectorConfig->importNames();
 
-    $rectorConfig->phpVersion(\Rector\ValueObject\PhpVersion::PHP_84);
+    $rectorConfig->phpVersion(\Rector\ValueObject\PhpVersion::PHP_83);
 
     $rectorConfig->paths(
         [
@@ -15,7 +16,6 @@ return static function (\Rector\Config\RectorConfig $rectorConfig): void {
         ],
     );
 
-    // Sets for PHP 8.4
     $rectorConfig->sets(
         [
             \Rector\Set\ValueObject\SetList::PHP_84,
@@ -33,9 +33,4 @@ return static function (\Rector\Config\RectorConfig $rectorConfig): void {
             \Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class,
         ],
     );
-
-    $rectorConfig->rule(\Rector\Php84\Rector\Class_\AddReturnTypeDeclarationFromPhpDocRector::class);
-    $rectorConfig->rule(\Rector\CodingStyle\Rector\Encapsed\EncapsedStringsToSprintfRector::class);
-    $rectorConfig->rule(\Rector\CodingStyle\Rector\FuncCall\ConsistentImplodeRector::class);
-    $rectorConfig->rule(\Rector\Strict\Rector\BooleanNot\BooleanInBooleanNotRuleFixerRector::class);
 };
