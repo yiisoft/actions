@@ -3,6 +3,10 @@ name: bc
 on:
   workflow_call:
     inputs:
+      usePackageBin:
+        description: Use bin file from package.
+        default: false
+        type: boolean
       coverage:
         description: Generate code coverage report.
         default: pcov
@@ -57,8 +61,13 @@ jobs:
           ini-values: ${{ inputs.ini-values }}
           php-version: ${{ matrix.php }}
           tools: ${{ inputs.tools }}
+          
+      - name: Install Composer dependencies
+        if: ${{ inputs.usePackageBin }} == true
+        uses: ramsey/composer-install@v3
 
-      - name: Install roave/backward-compatibility-check.
+      - name: Install roave/backward-compatibility-check
+        if: ${{ inputs.usePackageBin }} == false
         run: composer require --dev roave/backward-compatibility-check
 
       - name: Run roave/backward-compatibility-check.
