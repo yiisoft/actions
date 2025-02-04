@@ -61,10 +61,6 @@ jobs:
           ini-values: ${{ inputs.ini-values }}
           php-version: ${{ matrix.php }}
           tools: ${{ inputs.tools }}
-      
-      - name: Debug inputs
-        run: |
-          echo "usePackageBin: '${{ inputs.usePackageBin == true }}',  '${{ inputs.usePackageBin == false }}',  '${{ inputs.usePackageBin }}'"
     
       - name: Install Composer dependencies
         if: inputs.usePackageBin == true
