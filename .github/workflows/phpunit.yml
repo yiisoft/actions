@@ -15,7 +15,6 @@ on:
         type: string
       extensions:
         description: List of extensions to PHP.
-        default: '["8.1","8.2","8.3","8.4"]'
         required: false
         type: string
       ini-values:
@@ -25,11 +24,13 @@ on:
         type: string
       os:
         description: Os to test, separated by comma.
-        required: true
+        default: '["ubuntu-latest","windows-latest"]'
+        required: false
         type: string
       php:
         description: PHP versions to test, separated by comma.
-        required: true
+        default: '["8.1","8.2","8.3","8.4"]'
+        required: false
         type: string
       phpunitConfig:
         description: PHPUnit configuration file.
