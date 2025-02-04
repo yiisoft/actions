@@ -8,6 +8,11 @@ on:
         default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
         required: false
         type: string
+      download-config:
+        description: Download Rector configuration file
+        default: true
+        required: false
+        type: boolean
       os:
         description: OS to test, separated by comma
         default: '["ubuntu-latest"]'
@@ -74,6 +79,7 @@ jobs:
         run: ${{ inputs.composer-command }}
 
       - name: Download rector config
+        if: ${{ inputs.download-config == true}}
         shell: bash
         run: |
           wget https://raw.githubusercontent.com/yiisoft/actions/refs/heads/add-php-84/.github/config/rector.php -O rector.php
