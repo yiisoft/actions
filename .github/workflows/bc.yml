@@ -63,11 +63,11 @@ jobs:
           tools: ${{ inputs.tools }}
           
       - name: Install Composer dependencies
-        if: inputs.usePackageBin == 'true'
+        if: fromJson(inputs.usePackageBin) == true
         uses: ramsey/composer-install@v3
 
       - name: Install roave/backward-compatibility-check
-        if: inputs.usePackageBin == 'false'
+        if: fromJson(inputs.usePackageBin) == false
         run: composer require --dev roave/backward-compatibility-check
 
       - name: Run roave/backward-compatibility-check.
