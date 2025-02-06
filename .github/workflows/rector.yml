@@ -10,7 +10,7 @@ on:
         type: string
       download-config:
         description: Download Rector configuration file
-        default: true
+        default: false
         required: false
         type: boolean
       os:
@@ -82,7 +82,7 @@ jobs:
         if: ${{ inputs.download-config == true}}
         shell: bash
         run: |
-          wget https://raw.githubusercontent.com/yiisoft/actions/refs/heads/add-php-84/.github/config/rector.php -O rector.php
+          wget https://raw.githubusercontent.com/yiisoft/actions/main/config/rector.php -O rector.php
 
       - run: vendor/bin/rector process --ansi
 
