@@ -15,11 +15,13 @@ on:
         default: ""
       os:
         description: Operating systems to test, separated by comma.
-        required: true
+        default: '["ubuntu-latest"]'
+        required: false
         type: string
       php:
         description: PHP versions to test, separated by comma.
-        required: true
+        default: '["8.1","8.2","8.3","8.4"]'
+        required: false
         type: string
       extensions:
         description: List of extensions to PHP.
@@ -48,6 +50,7 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: ${{ inputs.extensions }}
           coverage: none
+          tools: composer-require-checker
 
       - name: Determine composer cache directory on Linux.
         run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
@@ -67,4 +70,4 @@ jobs:
         run: ${{ inputs.composer-command }}
 
       - name: Check dependencies.
-        run: args=(); test -n "${{ inputs.config }}" && args+=("--config-file=${{ inputs.config }}"); vendor/bin/composer-require-checker ${args[@]}
+        run: args=(); test -n "${{ inputs.config }}" && args+=("--config-file=${{ inputs.config }}"); composer-require-checker ${args[@]}
