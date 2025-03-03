@@ -84,7 +84,7 @@ jobs:
         run: |
           wget https://raw.githubusercontent.com/yiisoft/actions/main/config/rector.php -O rector.php
 
-      - run: vendor/bin/rector process --ansi
+      - run: vendor/bin/rector process --ansi --output-format=github
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
