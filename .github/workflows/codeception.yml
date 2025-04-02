@@ -46,6 +46,15 @@ on:
         default:
         required: false
         type: string
+      codecovVerbose:
+        description: Specify whether the Codecov output should be verbose.
+        default: false
+        required: false
+        type: boolean
+    secrets:
+      codecovToken:
+        description: Codecov upload token
+        required: false
 
 jobs:
   codeception:
@@ -110,9 +119,11 @@ jobs:
 
       - name: Upload coverage to Codecov.
         if: matrix.os == 'ubuntu-latest' && matrix.php == '8.1' && inputs.debug == false
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
+          token: ${{ secrets.codecovToken }}
           files: tests/_output/coverage.xml
+          verbose: ${{ inputs.codecovVerbose }}
 
       - name: Archive codeception results.
         if: ${{ inputs.debug }}
