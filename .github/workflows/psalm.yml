@@ -81,7 +81,7 @@ jobs:
 
       - name: Install subpackage.
         if: ${{ inputs.subpackage != '' }}
-        uses: yiisoft/actions/.github/workflows/install-subpackage@master
+        uses: yiisoft/actions/.github/workflows/install-subpackage@install-subpackage
         with:
           os: ${{ matrix.os }}
           composer-root-version: ${{ inputs.composer-root-version }}
