@@ -1,0 +1,66 @@
+name: Install subpackage
+
+inputs:
+  subpackage:
+    description: Subpackage to install.
+    required: true
+    type: string
+  composer-root-version:
+    description: Composer root version.
+    default: dev-master
+    required: false
+    type: string
+  os:
+    description: Used operating system.
+    default: ubuntu-latest
+    required: false
+    type: string
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Set environment variable for work package url (pull request) windows.
+      if: ${{ github.event_name == 'pull_request' && startsWith(inputs.os, 'windows') }}
+      shell: pwsh
+      run: |
+        echo "WORK_PACKAGE_URL=https://github.com/${{ github.event.pull_request.head.repo.owner.login }}/" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "BRANCH_NAME=${{ github.head_ref }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+        echo "FULL_BRANCH_NAME=dev-${{ github.head_ref }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+    - name: Set environment variable for work package url (pull request) ubuntu.
+      if: ${{ github.event_name == 'pull_request' && startsWith(inputs.os, 'ubuntu') }}
+      shell: bash
+      run: |
+        echo "WORK_PACKAGE_URL=https://github.com/${{ github.event.pull_request.head.repo.owner.login }}/" >> $GITHUB_ENV
+        echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
+        echo "FULL_BRANCH_NAME=dev-${{ github.head_ref }}" >> $GITHUB_ENV
+
+    - name: Check exist branch (pull request).
+      if: ${{ github.event_name == 'pull_request' }}
+      shell: bash
+      run: |
+        if git ls-remote --heads ${{ env.WORK_PACKAGE_URL }}${{ inputs.subpackage }} ${{ env.BRANCH_NAME }} | grep ${{ env.BRANCH_NAME }};
+        then echo "BRANCH_EXISTS=1" >> $GITHUB_ENV; else echo "BRANCH_EXISTS=0" >> $GITHUB_ENV; fi
+
+    - name: Install from fork and branch exists.
+      if: ${{ env.BRANCH_EXISTS == 1 && github.event.pull_request.head.repo.fork }}
+      shell: bash
+      run: |
+        echo "Pull Request - Install from fork and branch exists."
+        composer config repositories.yiisoft/${{ inputs.subpackage }} git ${{ env.WORK_PACKAGE_URL }}${{ inputs.subpackage }}
+        COMPOSER_ROOT_VERSION=${{ inputs.composer-root-version }} composer require "yiisoft/${{ inputs.subpackage }}:${{ env.FULL_BRANCH_NAME }} as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi
+
+    - name: Install from branch and branch exists.
+      if: ${{ env.BRANCH_EXISTS == 1 && !github.event.pull_request.head.repo.fork }}
+      shell: bash
+      run: |
+        echo "Pull Request - Install from branch and branch exists."
+        composer require "yiisoft/${{ inputs.subpackage }}:${{ env.FULL_BRANCH_NAME }} as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi
+
+    - name: Install from master and branch not exists.
+      if: ${{ env.BRANCH_EXISTS == 0 }}
+      shell: bash
+      run: |
+        echo "Pull Request - Install from master and branch not exists."
+        composer require yiisoft/${{ inputs.subpackage }}:dev-master --no-interaction --no-progress --optimize-autoloader --ansi

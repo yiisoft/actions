@@ -8,6 +8,16 @@ on:
         default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
         required: false
         type: string
+      composer-root-version:
+        description: Composer root version.
+        default: dev-master
+        required: false
+        type: string
+      subpackage:
+        description: Subpackage to install.
+        default: ''
+        required: false
+        type: string
       psalm-config:
         description: Psalm configuration file.
         default: psalm.xml
@@ -68,6 +78,14 @@ jobs:
 
       - name: Install dependencies with composer.
         run: ${{ inputs.composer-command }}
+
+      - name: Install subpackage.
+        if: ${{ inputs.subpackage != '' }}
+        uses: ./.github/workflows/install-subpackage@master
+        with:
+          os: ${{ matrix.os }}
+          composer-root-version: ${{ inputs.composer-root-version }}
+          subpackage: ${{ inputs.subpackage }}
 
       - name: Static analysis.
         run: vendor/bin/psalm --config=${{ inputs.psalm-config }} --shepherd --stats --output-format=github --php-version=${{ matrix.php }}
