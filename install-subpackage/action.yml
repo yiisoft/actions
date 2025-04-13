@@ -22,6 +22,11 @@ runs:
         echo "WORK_PACKAGE_URL=https://github.com/${{ github.event.pull_request.head.repo.owner.login }}/" >> $GITHUB_ENV
         echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
         echo "FULL_BRANCH_NAME=dev-${{ github.head_ref }}" >> $GITHUB_ENV
+
+    - name: Check exist branch (pull request).
+      if: ${{ github.event_name == 'pull_request' }}
+      shell: bash
+      run: |
         if git ls-remote --heads ${{ env.WORK_PACKAGE_URL }}${{ inputs.subpackage }} ${{ env.BRANCH_NAME }} | grep ${{ env.BRANCH_NAME }};
         then echo "BRANCH_EXISTS=1" >> $GITHUB_ENV; else echo "BRANCH_EXISTS=0" >> $GITHUB_ENV; fi
 
