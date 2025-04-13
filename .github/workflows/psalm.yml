@@ -81,9 +81,10 @@ jobs:
 
       - if: ${{ inputs.subpackage != '' }}
         name: Install ${{ inputs.subpackage }}.
-        uses: yiisoft/actions/install-subpackage@install-subpackage
+        uses: yiisoft/actions/.github/workflows/install-subpackage@install-subpackage
         with:
           subpackage: ${{ inputs.subpackage }}
+          composer-root-version: ${{ inputs.composer-root-version }}
 
       - name: Static analysis.
         run: vendor/bin/psalm --config=${{ inputs.psalm-config }} --shepherd --stats --output-format=github --php-version=${{ matrix.php }}

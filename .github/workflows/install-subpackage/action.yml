@@ -10,36 +10,18 @@ inputs:
     default: dev-master
     required: false
     type: string
-  os:
-    description: Used operating system.
-    default: ubuntu-latest
-    required: false
-    type: string
 
 runs:
   using: "composite"
 
   steps:
-    - name: Set environment variable for work package url (pull request) windows.
-      if: ${{ github.event_name == 'pull_request' && startsWith(inputs.os, 'windows') }}
-      shell: pwsh
-      run: |
-        echo "WORK_PACKAGE_URL=https://github.com/${{ github.event.pull_request.head.repo.owner.login }}/" | Out-File -FilePath $env:GITHUB_ENV -Append
-        echo "BRANCH_NAME=${{ github.head_ref }}" | Out-File -FilePath $env:GITHUB_ENV -Append
-        echo "FULL_BRANCH_NAME=dev-${{ github.head_ref }}" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-    - name: Set environment variable for work package url (pull request) ubuntu.
-      if: ${{ github.event_name == 'pull_request' && startsWith(inputs.os, 'ubuntu') }}
+    - name: Set environment variable for work package url (pull request).
+      if: ${{ github.event_name == 'pull_request' }}
       shell: bash
       run: |
         echo "WORK_PACKAGE_URL=https://github.com/${{ github.event.pull_request.head.repo.owner.login }}/" >> $GITHUB_ENV
         echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
         echo "FULL_BRANCH_NAME=dev-${{ github.head_ref }}" >> $GITHUB_ENV
-
-    - name: Check exist branch (pull request).
-      if: ${{ github.event_name == 'pull_request' }}
-      shell: bash
-      run: |
         if git ls-remote --heads ${{ env.WORK_PACKAGE_URL }}${{ inputs.subpackage }} ${{ env.BRANCH_NAME }} | grep ${{ env.BRANCH_NAME }};
         then echo "BRANCH_EXISTS=1" >> $GITHUB_ENV; else echo "BRANCH_EXISTS=0" >> $GITHUB_ENV; fi
 

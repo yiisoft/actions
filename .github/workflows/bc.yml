@@ -3,6 +3,16 @@ name: bc
 on:
   workflow_call:
     inputs:
+      composer-root-version:
+        description: Composer root version.
+        default: dev-master
+        required: false
+        type: string
+      subpackage:
+        description: Subpackage to install.
+        default: ''
+        required: false
+        type: string
       usePackageBin:
         description: Use binary installed with Composer and skip installing binary in the action.
         default: false
@@ -61,7 +71,7 @@ jobs:
           ini-values: ${{ inputs.ini-values }}
           php-version: ${{ matrix.php }}
           tools: ${{ inputs.tools }}
-    
+
       - name: Install Composer dependencies
         if: inputs.usePackageBin == true
         uses: ramsey/composer-install@v3
@@ -69,6 +79,13 @@ jobs:
       - name: Install roave/backward-compatibility-check
         if: inputs.usePackageBin == false
         run: composer require --dev roave/backward-compatibility-check
+
+      - if: ${{ inputs.subpackage != '' }}
+        name: Install ${{ inputs.subpackage }}.
+        uses: yiisoft/actions/.github/workflows/install-subpackage@install-subpackage
+        with:
+          subpackage: ${{ inputs.subpackage }}
+          composer-root-version: ${{ inputs.composer-root-version }}
 
       - name: Run roave/backward-compatibility-check.
         run: vendor/bin/roave-backward-compatibility-check

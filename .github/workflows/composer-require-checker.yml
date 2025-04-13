@@ -81,9 +81,10 @@ jobs:
 
       - if: ${{ inputs.subpackage != '' }}
         name: Install ${{ inputs.subpackage }}.
-        uses: yiisoft/actions/install-subpackage@install-subpackage
+        uses: yiisoft/actions/.github/workflows/install-subpackage@install-subpackage
         with:
           subpackage: ${{ inputs.subpackage }}
+          composer-root-version: ${{ inputs.composer-root-version }}
 
       - name: Check dependencies.
         run: args=(); test -n "${{ inputs.config }}" && args+=("--config-file=${{ inputs.config }}"); composer-require-checker ${args[@]}

@@ -110,9 +110,10 @@ jobs:
 
       - if: ${{ inputs.subpackage != '' }}
         name: Install ${{ inputs.subpackage }}.
-        uses: yiisoft/actions/install-subpackage@install-subpackage
+        uses: yiisoft/actions/.github/workflows/install-subpackage@install-subpackage
         with:
           subpackage: ${{ inputs.subpackage }}
+          composer-root-version: ${{ inputs.composer-root-version }}
 
       - name: Run tests with phpunit with code coverage.
         run: vendor/bin/phpunit --coverage-clover=coverage.xml --colors=always --configuration ${{ inputs.phpunitConfig }}
