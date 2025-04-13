@@ -13,6 +13,16 @@ on:
         default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
         required: false
         type: string
+      composer-root-version:
+        description: Composer root version.
+        default: dev-master
+        required: false
+        type: string
+      subpackage:
+        description: Subpackage to install.
+        default: ''
+        required: false
+        type: string
       extensions:
         description: List of extensions to PHP.
         required: false
@@ -97,6 +107,12 @@ jobs:
 
       - name: Install dependencies with composer.
         run: ${{ inputs.composer-command }}
+
+      - if: ${{ inputs.subpackage != '' }}
+        name: Install ${{ inputs.subpackage }}.
+        uses: yiisoft/actions/install-subpackage@install-subpackage
+        with:
+          subpackage: ${{ inputs.subpackage }}
 
       - name: Run tests with phpunit with code coverage.
         run: vendor/bin/phpunit --coverage-clover=coverage.xml --colors=always --configuration ${{ inputs.phpunitConfig }}

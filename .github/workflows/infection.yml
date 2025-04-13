@@ -3,6 +3,16 @@ name: infection
 on:
   workflow_call:
     inputs:
+      composer-root-version:
+        description: Composer root version.
+        default: dev-master
+        required: false
+        type: string
+      subpackage:
+        description: Subpackage to install.
+        default: ''
+        required: false
+        type: string
       extensions:
         description: List of extensions to PHP
         default:
@@ -53,6 +63,12 @@ jobs:
 
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v3
+
+      - if: ${{ inputs.subpackage != '' }}
+        name: Install ${{ inputs.subpackage }}.
+        uses: yiisoft/actions/install-subpackage@install-subpackage
+        with:
+          subpackage: ${{ inputs.subpackage }}
 
       - name: Run infection
         run: |

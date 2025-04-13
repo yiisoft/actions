@@ -88,7 +88,8 @@ jobs:
       - name: Install dependencies with composer
         run: ${{ inputs.composer-command }}
 
-      - name: Install ${{ inputs.subpackage }}.
+      - if: ${{ inputs.subpackage != '' }}
+        name: Install ${{ inputs.subpackage }}.
         uses: yiisoft/actions/install-subpackage@install-subpackage
         with:
           subpackage: ${{ inputs.subpackage }}
