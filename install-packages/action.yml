@@ -15,47 +15,41 @@ runs:
   using: "composite"
 
   steps:
-    - if: ${{ env.PACKAGES[0] != '' }}
-      name: Install ${{ env.PACKAGES[0] }}.
+    - if: ${{ fromJSON(inputs.packages)[0] != '' }}
+      name: Install ${{ fromJSON(inputs.packages)[0] }}.
       uses: yiisoft/actions/install-packages/install-package@install-subpackage
       with:
-        package: ${{ env.PACKAGES[0] }}
+        package: ${{ fromJSON(inputs.packages)[0] }}
+        composer-root-version: ${{ inputs.composer-root-version }}
+
+    - if: ${{ fromJSON(inputs.packages)[1] != '' }}
+      name: Install ${{ fromJSON(inputs.packages)[1] }}.
+      uses: yiisoft/actions/install-packages/install-package@install-subpackage
+      with:
+        package: ${{ fromJSON(inputs.packages)[1] }}
+        composer-root-version: ${{ inputs.composer-root-version }}
+
+    - if: ${{ fromJSON(inputs.packages)[2] != '' }}
+      name: Install ${{ fromJSON(inputs.packages)[2] }}.
+      uses: yiisoft/actions/install-packages/install-package@install-subpackage
+      with:
+        package: ${{ fromJSON(inputs.packages)[2] }}
+        composer-root-version: ${{ inputs.composer-root-version }}
+
+    - if: ${{ fromJSON(inputs.packages)[3] != '' }}
+      name: Install ${{ fromJSON(inputs.packages)[3] }}.
+      uses: yiisoft/actions/install-packages/install-package@install-subpackage
+      with:
+        package: ${{ fromJSON(inputs.packages)[3] }}
         composer-root-version: ${{ inputs.composer-root-version }}
       env:
         PACKAGES: ${{ fromJSON(inputs.packages) }}
 
-    - if: ${{ env.PACKAGES[1] != '' }}
-      name: Install ${{ env.PACKAGES[1] }}.
+    - if: ${{ fromJSON(inputs.packages)[4] != '' }}
+      name: Install ${{ fromJSON(inputs.packages)[4] }}.
       uses: yiisoft/actions/install-packages/install-package@install-subpackage
       with:
-        package: ${{ env.PACKAGES[1] }}
-        composer-root-version: ${{ inputs.composer-root-version }}
-      env:
-        PACKAGES: ${{ fromJSON(inputs.packages) }}
-
-    - if: ${{ env.PACKAGES[2] != '' }}
-      name: Install ${{ env.PACKAGES[2] }}.
-      uses: yiisoft/actions/install-packages/install-package@install-subpackage
-      with:
-        package: ${{ env.PACKAGES[2] }}
-        composer-root-version: ${{ inputs.composer-root-version }}
-      env:
-        PACKAGES: ${{ fromJSON(inputs.packages) }}
-
-    - if: ${{ env.PACKAGES[3] != '' }}
-      name: Install ${{ env.PACKAGES[3] }}.
-      uses: yiisoft/actions/install-packages/install-package@install-subpackage
-      with:
-        package: ${{ env.PACKAGES[3] }}
-        composer-root-version: ${{ inputs.composer-root-version }}
-      env:
-        PACKAGES: ${{ fromJSON(inputs.packages) }}
-
-    - if: ${{ env.PACKAGES[4] != '' }}
-      name: Install ${{ env.PACKAGES[4] }}.
-      uses: yiisoft/actions/install-packages/install-package@install-subpackage
-      with:
-        package: ${{ env.PACKAGES[4] }}
+        package: ${{ fromJSON(inputs.packages)[4] }}
         composer-root-version: ${{ inputs.composer-root-version }}
       env:
         PACKAGES: ${{ fromJSON(inputs.packages) }}
