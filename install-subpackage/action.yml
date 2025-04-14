@@ -50,4 +50,4 @@ runs:
       shell: bash
       run: |
         echo "Pull Request - Install from master and branch not exists."
-        composer require yiisoft/${{ inputs.subpackage }}:dev-master as ${{ inputs.composer-root-version }} --no-interaction --no-progress --optimize-autoloader --ansi
+        composer require "yiisoft/${{ inputs.subpackage }}:dev-master as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi
