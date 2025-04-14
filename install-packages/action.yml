@@ -42,8 +42,6 @@ runs:
       with:
         package: ${{ fromJSON(inputs.packages)[3] }}
         composer-root-version: ${{ inputs.composer-root-version }}
-      env:
-        PACKAGES: ${{ fromJSON(inputs.packages)[3] }}
 
     - if: ${{ fromJSON(inputs.packages)[4] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[4] }}.
@@ -51,5 +49,3 @@ runs:
       with:
         package: ${{ fromJSON(inputs.packages)[4] }}
         composer-root-version: ${{ inputs.composer-root-version }}
-      env:
-        PACKAGES: ${{ fromJSON(inputs.packages)[4] }}
