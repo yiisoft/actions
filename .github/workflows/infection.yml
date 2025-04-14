@@ -8,8 +8,8 @@ on:
         default: dev-master
         required: false
         type: string
-      required-package:
-        description: Required package to install.
+      required-packages:
+        description: List of required packages to install, for example '["db", "db-sqlite"]'
         default: ''
         required: false
         type: string
@@ -64,11 +64,11 @@ jobs:
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v3
 
-      - if: ${{ inputs.required-package != '' }}
-        name: Install ${{ inputs.required-package }}.
-        uses: yiisoft/actions/install-required-package@install-subpackage
+      - if: ${{ inputs.required-packages != '' }}
+        name: Install required packages.
+        uses: yiisoft/actions/install-packages@install-subpackage
         with:
-          required-package: ${{ inputs.required-package }}
+          packages: ${{ inputs.required-packages }}
           composer-root-version: ${{ inputs.composer-root-version }}
 
       - name: Run infection

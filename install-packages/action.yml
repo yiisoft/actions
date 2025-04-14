@@ -1,0 +1,54 @@
+name: Install packages
+
+inputs:
+  packages:
+    description: List of packages to install, for example '["db", "db-sqlite"]'
+    required: true
+    type: string
+  composer-root-version:
+    description: Composer root version.
+    default: dev-master
+    required: false
+    type: string
+
+runs:
+  using: "composite"
+
+  env:
+    PACKAGES: ${{ fromJson(inputs.packages) }}
+
+  steps:
+    - if: ${{ env.PACKAGES[0] != '' }}
+      name: Install ${{ env.PACKAGES[0] }}.
+      uses: yiisoft/actions/install-packages/install-package@install-subpackage
+      with:
+        package: ${{ env.PACKAGES[0] }}
+        composer-root-version: ${{ inputs.composer-root-version }}
+
+    - if: ${{ env.PACKAGES[1] != '' }}
+      name: Install ${{ env.PACKAGES[1] }}.
+      uses: yiisoft/actions/install-packages/install-package@install-subpackage
+      with:
+        package: ${{ env.PACKAGES[1] }}
+        composer-root-version: ${{ inputs.composer-root-version }}
+
+    - if: ${{ env.PACKAGES[2] != '' }}
+      name: Install ${{ env.PACKAGES[2] }}.
+      uses: yiisoft/actions/install-packages/install-package@install-subpackage
+      with:
+        package: ${{ env.PACKAGES[2] }}
+        composer-root-version: ${{ inputs.composer-root-version }}
+
+    - if: ${{ env.PACKAGES[3] != '' }}
+      name: Install ${{ env.PACKAGES[3] }}.
+      uses: yiisoft/actions/install-packages/install-package@install-subpackage
+      with:
+        package: ${{ env.PACKAGES[3] }}
+        composer-root-version: ${{ inputs.composer-root-version }}
+
+    - if: ${{ env.PACKAGES[4] != '' }}
+      name: Install ${{ env.PACKAGES[4] }}.
+      uses: yiisoft/actions/install-packages/install-package@install-subpackage
+      with:
+        package: ${{ env.PACKAGES[4] }}
+        composer-root-version: ${{ inputs.composer-root-version }}
