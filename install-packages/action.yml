@@ -11,11 +11,11 @@ inputs:
     required: false
     type: string
 
-env:
-  PACKAGES: ${{ fromJson(inputs.packages) }}
-
 runs:
   using: "composite"
+
+  env:
+    PACKAGES: ${{ fromJSON(inputs.packages) }}
 
   steps:
     - if: ${{ env.PACKAGES[0] != '' }}
