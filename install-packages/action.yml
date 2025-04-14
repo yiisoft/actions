@@ -21,6 +21,8 @@ runs:
       with:
         package: ${{ env.PACKAGES[0] }}
         composer-root-version: ${{ inputs.composer-root-version }}
+      env:
+        PACKAGES: ${{ fromJSON(inputs.packages) }}
 
     - if: ${{ env.PACKAGES[1] != '' }}
       name: Install ${{ env.PACKAGES[1] }}.
@@ -28,6 +30,8 @@ runs:
       with:
         package: ${{ env.PACKAGES[1] }}
         composer-root-version: ${{ inputs.composer-root-version }}
+      env:
+        PACKAGES: ${{ fromJSON(inputs.packages) }}
 
     - if: ${{ env.PACKAGES[2] != '' }}
       name: Install ${{ env.PACKAGES[2] }}.
@@ -35,6 +39,8 @@ runs:
       with:
         package: ${{ env.PACKAGES[2] }}
         composer-root-version: ${{ inputs.composer-root-version }}
+      env:
+        PACKAGES: ${{ fromJSON(inputs.packages) }}
 
     - if: ${{ env.PACKAGES[3] != '' }}
       name: Install ${{ env.PACKAGES[3] }}.
@@ -42,6 +48,8 @@ runs:
       with:
         package: ${{ env.PACKAGES[3] }}
         composer-root-version: ${{ inputs.composer-root-version }}
+      env:
+        PACKAGES: ${{ fromJSON(inputs.packages) }}
 
     - if: ${{ env.PACKAGES[4] != '' }}
       name: Install ${{ env.PACKAGES[4] }}.
@@ -49,6 +57,5 @@ runs:
       with:
         package: ${{ env.PACKAGES[4] }}
         composer-root-version: ${{ inputs.composer-root-version }}
-
-  env:
-    PACKAGES: ${{ fromJSON(inputs.packages) }}
+      env:
+        PACKAGES: ${{ fromJSON(inputs.packages) }}
