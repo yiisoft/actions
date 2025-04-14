@@ -1,8 +1,8 @@
-name: Install subpackage
+name: Install required package
 
 inputs:
-  subpackage:
-    description: Subpackage to install.
+  required-package:
+    description: Required package to install.
     required: true
     type: string
   composer-root-version:
@@ -27,7 +27,7 @@ runs:
       if: ${{ github.event_name == 'pull_request' }}
       shell: bash
       run: |
-        if git ls-remote --heads ${{ env.WORK_PACKAGE_URL }}${{ inputs.subpackage }} ${{ env.BRANCH_NAME }} | grep ${{ env.BRANCH_NAME }};
+        if git ls-remote --heads ${{ env.WORK_PACKAGE_URL }}${{ inputs.required-package }} ${{ env.BRANCH_NAME }} | grep ${{ env.BRANCH_NAME }};
         then echo "BRANCH_EXISTS=1" >> $GITHUB_ENV; else echo "BRANCH_EXISTS=0" >> $GITHUB_ENV; fi
 
     - name: Install from fork and branch exists.
@@ -35,19 +35,19 @@ runs:
       shell: bash
       run: |
         echo "Pull Request - Install from fork and branch exists."
-        composer config repositories.yiisoft/${{ inputs.subpackage }} git ${{ env.WORK_PACKAGE_URL }}${{ inputs.subpackage }}
-        COMPOSER_ROOT_VERSION=${{ inputs.composer-root-version }} composer require "yiisoft/${{ inputs.subpackage }}:${{ env.FULL_BRANCH_NAME }} as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi
+        composer config repositories.yiisoft/${{ inputs.required-package }} git ${{ env.WORK_PACKAGE_URL }}${{ inputs.required-package }}
+        COMPOSER_ROOT_VERSION=${{ inputs.composer-root-version }} composer require "yiisoft/${{ inputs.required-package }}:${{ env.FULL_BRANCH_NAME }} as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi
 
     - name: Install from branch and branch exists.
       if: ${{ env.BRANCH_EXISTS == 1 && !github.event.pull_request.head.repo.fork }}
       shell: bash
       run: |
         echo "Pull Request - Install from branch and branch exists."
-        composer require "yiisoft/${{ inputs.subpackage }}:${{ env.FULL_BRANCH_NAME }} as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi
+        composer require "yiisoft/${{ inputs.required-package }}:${{ env.FULL_BRANCH_NAME }} as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi
 
     - name: Install from master and branch not exists.
       if: ${{ env.BRANCH_EXISTS == 0 }}
       shell: bash
       run: |
         echo "Pull Request - Install from master and branch not exists."
-        composer require "yiisoft/${{ inputs.subpackage }}:dev-master as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi
+        composer require "yiisoft/${{ inputs.required-package }}:dev-master as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi

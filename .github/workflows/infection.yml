@@ -8,8 +8,8 @@ on:
         default: dev-master
         required: false
         type: string
-      subpackage:
-        description: Subpackage to install.
+      required-package:
+        description: Required package to install.
         default: ''
         required: false
         type: string
@@ -64,11 +64,11 @@ jobs:
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v3
 
-      - if: ${{ inputs.subpackage != '' }}
-        name: Install ${{ inputs.subpackage }}.
-        uses: yiisoft/actions/install-subpackage@install-subpackage
+      - if: ${{ inputs.required-package != '' }}
+        name: Install ${{ inputs.required-package }}.
+        uses: yiisoft/actions/install-required-package@install-subpackage
         with:
-          subpackage: ${{ inputs.subpackage }}
+          required-package: ${{ inputs.required-package }}
           composer-root-version: ${{ inputs.composer-root-version }}
 
       - name: Run infection

@@ -8,8 +8,8 @@ on:
         default: dev-master
         required: false
         type: string
-      subpackage:
-        description: Subpackage to install.
+      required-package:
+        description: Required package to install.
         default: ''
         required: false
         type: string
@@ -80,11 +80,11 @@ jobs:
         if: inputs.usePackageBin == false
         run: composer require --dev roave/backward-compatibility-check
 
-      - if: ${{ inputs.subpackage != '' }}
-        name: Install ${{ inputs.subpackage }}.
-        uses: yiisoft/actions/install-subpackage@install-subpackage
+      - if: ${{ inputs.required-package != '' }}
+        name: Install ${{ inputs.required-package }}.
+        uses: yiisoft/actions/install-required-package@install-subpackage
         with:
-          subpackage: ${{ inputs.subpackage }}
+          required-package: ${{ inputs.required-package }}
           composer-root-version: ${{ inputs.composer-root-version }}
 
       - name: Run roave/backward-compatibility-check.
