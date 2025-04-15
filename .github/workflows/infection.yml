@@ -3,6 +3,16 @@ name: infection
 on:
   workflow_call:
     inputs:
+      composer-root-version:
+        description: Composer root version.
+        default: dev-master
+        required: false
+        type: string
+      required-packages:
+        description: List of required packages to install, for example '["db", "db-sqlite"]'
+        default: ''
+        required: false
+        type: string
       extensions:
         description: List of extensions to PHP
         default:
@@ -53,6 +63,13 @@ jobs:
 
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v3
+
+      - if: ${{ inputs.required-packages != '' }}
+        name: Install required packages.
+        uses: yiisoft/actions/install-packages@master
+        with:
+          packages: ${{ inputs.required-packages }}
+          composer-root-version: ${{ inputs.composer-root-version }}
 
       - name: Run infection
         run: |

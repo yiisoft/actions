@@ -8,6 +8,16 @@ on:
         default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
         required: false
         type: string
+      composer-root-version:
+        description: Composer root version.
+        default: dev-master
+        required: false
+        type: string
+      required-packages:
+        description: List of required packages to install, for example '["db", "db-sqlite"]'
+        default: ''
+        required: false
+        type: string
       bin-name:
         description: Binary name
         default: roave-infection-static-analysis-plugin
@@ -87,6 +97,13 @@ jobs:
 
       - name: Install dependencies with composer.
         run: ${{ inputs.composer-command }}
+
+      - if: ${{ inputs.required-packages != '' }}
+        name: Install required packages.
+        uses: yiisoft/actions/install-packages@master
+        with:
+          packages: ${{ inputs.required-packages }}
+          composer-root-version: ${{ inputs.composer-root-version }}
 
       - name: Run roave infection.
         run: |
