@@ -82,7 +82,7 @@ jobs:
 
       - if: ${{ inputs.required-packages != '' }}
         name: Install required packages.
-        uses: yiisoft/actions/install-packages@install-subpackage
+        uses: yiisoft/actions/install-packages@master
         with:
           packages: ${{ inputs.required-packages }}
           composer-root-version: ${{ inputs.composer-root-version }}

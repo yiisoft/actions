@@ -17,35 +17,35 @@ runs:
   steps:
     - if: ${{ fromJSON(inputs.packages)[0] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[0] }}.
-      uses: yiisoft/actions/install-packages/install-package@install-subpackage
+      uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[0] }}
         composer-root-version: ${{ inputs.composer-root-version }}
 
     - if: ${{ fromJSON(inputs.packages)[1] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[1] }}.
-      uses: yiisoft/actions/install-packages/install-package@install-subpackage
+      uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[1] }}
         composer-root-version: ${{ inputs.composer-root-version }}
 
     - if: ${{ fromJSON(inputs.packages)[2] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[2] }}.
-      uses: yiisoft/actions/install-packages/install-package@install-subpackage
+      uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[2] }}
         composer-root-version: ${{ inputs.composer-root-version }}
 
     - if: ${{ fromJSON(inputs.packages)[3] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[3] }}.
-      uses: yiisoft/actions/install-packages/install-package@install-subpackage
+      uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[3] }}
         composer-root-version: ${{ inputs.composer-root-version }}
 
     - if: ${{ fromJSON(inputs.packages)[4] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[4] }}.
-      uses: yiisoft/actions/install-packages/install-package@install-subpackage
+      uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[4] }}
         composer-root-version: ${{ inputs.composer-root-version }}
