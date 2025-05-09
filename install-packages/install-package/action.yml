@@ -27,7 +27,7 @@ runs:
       name: Check exist branch (pull request).
       shell: bash
       run: |
-        if git ls-remote --heads ${{ env.WORK_PACKAGE_URL }}${{ inputs.package }} "${{ env.BRANCH_NAME }}";
+        if git ls-remote --heads --exit-code ${{ env.WORK_PACKAGE_URL }}${{ inputs.package }} "${{ env.BRANCH_NAME }}";
         then echo "BRANCH_EXISTS=1" >> $GITHUB_ENV; else echo "BRANCH_EXISTS=0" >> $GITHUB_ENV; fi
 
     - if: ${{ env.BRANCH_EXISTS == 1 && github.event.pull_request.head.repo.fork }}
