@@ -27,7 +27,14 @@ runs:
       name: Check exist branch (pull request).
       shell: bash
       run: |
-        if git ls-remote --heads --exit-code ${{ env.WORK_PACKAGE_URL }}${{ inputs.package }} "${{ env.BRANCH_NAME }}";
+        if [[ "${{ github.event.pull_request.head.repo.name }}" != "${{ github.event.pull_request.base.repo.name }}" ]];
+        then
+            fork_name="${{ github.event.pull_request.head.repo.name }}"
+            repo_name="${{ github.event.pull_request.base.repo.name }}"
+            fork_prefix=${fork_name%${repo_name}}
+            echo "FORK_PREFIX=${fork_prefix}" >> $GITHUB_ENV
+        fi
+        if git ls-remote --heads --exit-code ${{ env.WORK_PACKAGE_URL }}${fork_prefix}${{ inputs.package }} "${{ env.BRANCH_NAME }}";
         then echo "BRANCH_EXISTS=1" >> $GITHUB_ENV; else echo "BRANCH_EXISTS=0" >> $GITHUB_ENV; fi
 
     - if: ${{ env.BRANCH_EXISTS == 1 && github.event.pull_request.head.repo.fork }}
@@ -35,12 +42,7 @@ runs:
       shell: bash
       run: |
         echo "Pull Request - Install from fork and branch exists."
-        if [[ "${{ github.event.pull_request.head.repo.name }}" != "${{ github.event.pull_request.base.repo.name }}" ]]; then
-            fork_name="${{ github.event.pull_request.head.repo.name }}"
-            repo_name="${{ github.event.pull_request.base.repo.name }}"
-            fork_prefix=${fork_name%${repo_name}}
-        fi
-        composer config repositories.yiisoft/${{ inputs.package }} git ${{ env.WORK_PACKAGE_URL }}${fork_prefix}${{ inputs.package }}
+        composer config repositories.yiisoft/${{ inputs.package }} git ${{ env.WORK_PACKAGE_URL }}${{ env.FORK_PREFIX }}${{ inputs.package }}
         COMPOSER_ROOT_VERSION=${{ inputs.composer-root-version }} composer require "yiisoft/${{ inputs.package }}:${{ env.FULL_BRANCH_NAME }} as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi
 
     - if: ${{ env.BRANCH_EXISTS == 1 && !github.event.pull_request.head.repo.fork }}
