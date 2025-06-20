@@ -35,7 +35,12 @@ runs:
       shell: bash
       run: |
         echo "Pull Request - Install from fork and branch exists."
-        composer config repositories.yiisoft/${{ inputs.package }} git ${{ env.WORK_PACKAGE_URL }}${{ inputs.package }}
+        if [[ "${{ github.event.pull_request.head.repo.name }}" != "${{ github.event.pull_request.base.repo.name }}" ]]; then
+            fork_name="${{ github.event.pull_request.head.repo.name }}"
+            repo_name="${{ github.event.pull_request.base.repo.name }}"
+            fork_prefix=${fork_name%${repo_name}}
+        fi
+        composer config repositories.yiisoft/${{ inputs.package }} git ${{ env.WORK_PACKAGE_URL }}${fork_prefix}${{ inputs.package }}
         COMPOSER_ROOT_VERSION=${{ inputs.composer-root-version }} composer require "yiisoft/${{ inputs.package }}:${{ env.FULL_BRANCH_NAME }} as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi
 
     - if: ${{ env.BRANCH_EXISTS == 1 && !github.event.pull_request.head.repo.fork }}
