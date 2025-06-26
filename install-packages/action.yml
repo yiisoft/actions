@@ -49,3 +49,10 @@ runs:
       with:
         package: ${{ fromJSON(inputs.packages)[4] }}
         composer-root-version: ${{ inputs.composer-root-version }}
+
+    - if: ${{ fromJSON(inputs.packages)[5] != '' }}
+      name: Install ${{ fromJSON(inputs.packages)[5] }}.
+      uses: yiisoft/actions/install-packages/install-package@master
+      with:
+        package: ${{ fromJSON(inputs.packages)[5] }}
+        composer-root-version: ${{ inputs.composer-root-version }}
