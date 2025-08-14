@@ -19,8 +19,8 @@ runs:
       name: Set environment variable for work package url (pull request).
       shell: bash
       run: |
-        echo "WORK_PACKAGE_URL=https://github.com/${{ github.event.pull_request.head.repo.owner.login }}/" >> $GITHUB_ENV
-        echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
+        work_package_url="https://github.com/${{ github.event.pull_request.head.repo.owner.login }}/"
+        echo "WORK_PACKAGE_URL=${work_package_url}" >> $GITHUB_ENV
         echo "FULL_BRANCH_NAME=dev-${{ github.head_ref }}" >> $GITHUB_ENV
         if [[ "${{ github.event.pull_request.head.repo.name }}" != "${{ github.event.pull_request.base.repo.name }}" ]];
         then
@@ -29,7 +29,7 @@ runs:
             fork_prefix=${fork_name%${repo_name}}
             echo "FORK_PREFIX=${fork_prefix}" >> $GITHUB_ENV
         fi
-        if git ls-remote --heads --exit-code ${{ env.WORK_PACKAGE_URL }}${fork_prefix}${{ inputs.package }} "${{ env.BRANCH_NAME }}";
+        if git ls-remote --heads --exit-code ${work_package_url}${fork_prefix}${{ inputs.package }} "${{ github.head_ref }}";
         then echo "BRANCH_EXISTS=1" >> $GITHUB_ENV; else echo "BRANCH_EXISTS=0" >> $GITHUB_ENV; fi
 
     - if: ${{ env.BRANCH_EXISTS == 1 && github.event.pull_request.head.repo.fork }}
