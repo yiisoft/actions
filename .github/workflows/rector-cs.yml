@@ -15,6 +15,16 @@ on:
       repository:
         type: string
         required: false
+      composer-root-version:
+        description: Composer root version
+        default: dev-master
+        required: false
+        type: string
+      required-packages:
+        description: List of required packages to install, for example '["db", "db-sqlite"]'
+        default: ''
+        required: false
+        type: string
     secrets:
       token:
         description: GitHub classic token with repo and workflow scopes
@@ -41,6 +51,13 @@ jobs:
 
       - name: Install Composer dependencies
         uses: "ramsey/composer-install@v3"
+
+      - name: Install required packages
+        if: ${{ inputs.required-packages != '' }}
+        uses: yiisoft/actions/install-packages@master
+        with:
+          packages: ${{ inputs.required-packages }}
+          composer-root-version: ${{ inputs.composer-root-version }}
 
       - name: Run PHP CS Fixer
         run: ./vendor/bin/php-cs-fixer fix
