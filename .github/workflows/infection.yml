@@ -33,6 +33,11 @@ on:
         default: '["8.4"]'
         required: false
         type: string
+      infection-args:
+        description: Infection command arguments
+        default: --ignore-msi-with-no-mutations --only-covered
+        required: false
+        type: string
 
     secrets:
       STRYKER_DASHBOARD_API_KEY:
@@ -73,6 +78,6 @@ jobs:
 
       - name: Run infection
         run: |
-          vendor/bin/infection --ignore-msi-with-no-mutations --only-covered
+          vendor/bin/infection ${{ inputs.infection-args }}
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
