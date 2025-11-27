@@ -61,5 +61,29 @@ jobs:
       - name: Install dependencies with composer.
         run: ${{ inputs.composer-command }}
 
-      - name: Run easy-coding-standard.
-        run: vendor/bin/ecs check src tests --ansi
+      - name: Run easy coding standard.
+        run: vendor/bin/ecs check src tests --ansi --fix
+
+      - name: Check for easy coding standard modified files.
+        id: ecs-git-check
+        run: echo ::set-output name=modified::$(if git diff --exit-code --no-patch; then echo "false"; else echo "true"; fi)
+
+      - name: Git config.
+        if: steps.ecs-git-check.outputs.modified == 'true'
+        run: |
+          git config --global user.name 'Yii bot'
+          git config --global user.email 'yiibot@yiiframework.com'
+
+      - name: Git checkout.
+        if: steps.ecs-git-check.outputs.modified == 'true'
+        run: git checkout -b dev-${{ github.head_ref }}
+
+      - name: Commit easy coding standard fixes.
+        if: steps.ecs-git-check.outputs.modified == 'true'
+        run: git commit -am "[Ecs] Apply fixes"
+
+      - name: Push easy coding standard fixes.
+        if: steps.ecs-git-check.outputs.modified == 'true'
+        run: git push origin dev-${{ github.head_ref }}
+        env:
+          GH_PAT: ${{ secrets.token || github.token }}
