@@ -107,6 +107,6 @@ jobs:
 
       - name: Run roave infection.
         run: |
-          vendor/bin/${{ inputs.bin-name }} --threads=2 --min-msi=${{ inputs.min-msi }} --min-covered-msi=${{ inputs.min-covered-msi }} --ignore-msi-with-no-mutations --only-covered
+          vendor/bin/${{ inputs.bin-name }} --threads=2 --min-msi=${{ inputs.min-msi }} --min-covered-msi=${{ inputs.min-covered-msi }} --ignore-msi-with-no-mutations
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
