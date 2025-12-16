@@ -116,7 +116,7 @@ jobs:
           composer-root-version: ${{ inputs.composer-root-version }}
 
       - name: Run tests with phpunit with code coverage.
-        run: vendor/bin/phpunit --display-warnings --coverage-clover=coverage.xml --colors=always --configuration ${{ inputs.phpunitConfig }}
+        run: vendor/bin/phpunit --coverage-clover=coverage.xml --colors=always --configuration ${{ inputs.phpunitConfig }}
 
       - name: Upload coverage to Codecov.
         if: matrix.os == 'ubuntu-latest'
