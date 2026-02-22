@@ -1,0 +1,76 @@
+name: db-mysql
+
+on:
+  workflow_call:
+    inputs:
+      install-db:
+        description: Specifies whether to install `yiisoft/db`.
+        default: false
+        required: true
+        type: boolean
+      php:
+        description: PHP versions to test, separated by comma.
+        default: '["8.1","8.2","8.3","8.4","8.5"]'
+        required: true
+        type: string
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }}
+
+    env:
+      composer-root-version: 2.0.0
+      db-composer-root-version: 2.0.1
+      extensions: pdo_mysql
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: ${{ fromJson(inputs.php) }}
+
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_PASSWORD: ''
+          MYSQL_DATABASE: yiitest
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout.
+        uses: actions/checkout@v4
+
+      - name: Install PHP with extensions.
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.extensions }}
+          ini-values: date.timezone='UTC'
+          coverage: pcov
+
+      - name: Install Composer dependencies + required yiisoft/db-mysql
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          composer-root-version: ${{ env.composer-root-version }}
+          packages: db-mysql
+
+      - if: ${{ inputs.install-db }}
+        name: Install yiisoft/db package.
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          composer-root-version: ${{ env.db-composer-root-version }}
+          package: db
+
+      - name: Run tests with phpunit.
+        run: vendor/bin/phpunit --testsuite=Mysql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
+
+      - name: Upload coverage to Codecov.
+        if: matrix.php == '8.5'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
