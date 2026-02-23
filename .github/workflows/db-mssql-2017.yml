@@ -14,7 +14,7 @@ on:
         required: false
         type: boolean
       php:
-        description: PHP version to test in JSON format.
+        description: PHP version to test.
         default: 8.5
         required: false
         type: string
