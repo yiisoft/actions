@@ -1,0 +1,99 @@
+name: db-oracle
+
+on:
+  workflow_call:
+    inputs:
+      install-db:
+        description: Specifies whether to install `yiisoft/db`.
+        default: true
+        required: false
+        type: boolean
+      install-oracle:
+        description: Specifies whether to install `yiisoft/oracle`.
+        default: true
+        required: false
+        type: boolean
+      oracle:
+        description: Oracle version to test.
+        default: latest
+        required: false
+        type: string
+      php:
+        description: PHP versions to test in JSON format.
+        default: '["8.1","8.2","8.3","8.4","8.5"]'
+        required: false
+        type: string
+      codecov-php:
+        description: PHP version to upload coverage to Codecov.
+        default: 8.5
+        required: false
+        type: string
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }}
+
+    env:
+      composer-root-version: 2.0.0
+      db-composer-root-version: 2.0.1
+      extensions: pdo_oci
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: ${{ fromJson(inputs.php) }}
+
+    services:
+      oci:
+        image: gvenzl/oracle-xe:${{ inputs.oracle }}
+        ports:
+          - 1521:1521
+        env:
+          ORACLE_DATABASE: yiitest
+          ORACLE_PASSWORD: root
+        options: >-
+          --name=oci
+          --health-cmd healthcheck.sh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Configure Database.
+        run: docker exec -i oci bash -c "sqlplus -s system/root@XE <<< 'ALTER USER system DEFAULT TABLESPACE USERS;'"
+
+      - name: Checkout.
+        uses: actions/checkout@v4
+
+      - name: Install PHP with extensions.
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.extensions }}
+          ini-values: date.timezone='UTC'
+          coverage: pcov
+
+      - name: Install Composer dependencies + required yiisoft/db-oracle
+        if: ${{ inputs.install-oracle }}
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          composer-root-version: ${{ env.composer-root-version }}
+          package: db-oracle
+
+      - name: Install yiisoft/db package.
+        if: ${{ inputs.install-db }}
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          composer-root-version: ${{ env.db-composer-root-version }}
+          package: db
+
+      - name: Run tests with phpunit.
+        run: vendor/bin/phpunit --testsuite=Oracle --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
+
+      - name: Upload coverage to Codecov.
+        if: ${{ matrix.php == inputs.codecov-php }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
