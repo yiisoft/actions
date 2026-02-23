@@ -1,0 +1,67 @@
+name: db-mssql
+
+on:
+  workflow_call:
+    inputs:
+      install-db:
+        description: Specifies whether to install `yiisoft/db`.
+        default: true
+        required: false
+        type: boolean
+      install-mssql:
+        description: Specifies whether to install `yiisoft/mssql`.
+        default: true
+        required: false
+        type: boolean
+      php:
+        description: PHP version to test in JSON format.
+        default: 8.5
+        required: false
+        type: string
+
+jobs:
+  tests:
+    name: MSSQL 2017 (Windows)
+
+    env:
+      COMPOSER_ROOT_VERSION: ${{ inputs.install-db && 'dev-master' || '2.0.1' }}
+      db-composer-root-version: 2.0.1
+      mssql-composer-root-version: 2.0.0
+      extensions: pdo_sqlsrv
+
+    runs-on: windows-latest
+
+    steps:
+      - name: Install SQL Server on Windows.
+        run: choco install sql-server-express --version=2017.20190916 -y --no-progress --ia="'/Q /SUPPRESSPRIVACYSTATEMENTNOTICE /IACCEPTSQLSERVERLICENSETERMS /ACTION=install /INSTANCEID=MSSQLSERVER /INSTANCENAME=MSSQLSERVER /UPDATEENABLED=FALSE /SECURITYMODE=SQL /TCPENABLED=1 /SAPWD=YourStrong!Passw0rd'"
+
+      - name: Create database.
+        run: sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
+
+      - name: Checkout.
+        uses: actions/checkout@v4
+
+      - name: Install PHP with extensions.
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php }}
+          extensions: ${{ env.extensions }}
+          ini-values: date.timezone='UTC'
+          coverage: pcov
+
+      - name: Install Composer dependencies + required yiisoft/db-mssql
+        if: ${{ inputs.install-mssql }}
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          composer-root-version: ${{ env.mssql-composer-root-version }}
+          package: db-mssql
+
+      - name: Install yiisoft/db package.
+        if: ${{ inputs.install-db }}
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          composer-root-version: ${{ env.db-composer-root-version }}
+          package: db
+
+      - name: Run mssql tests with phpunit and code coverage.
+        run: vendor/bin/phpunit --testsuite Mssql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
