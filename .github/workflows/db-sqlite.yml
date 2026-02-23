@@ -73,7 +73,7 @@ jobs:
         run: vendor/bin/phpunit --testsuite=Sqlite --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
 
       - name: Upload coverage to Codecov.
-        if: ${{ matrix.php == inputs.codecov-php }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.php == inputs.codecov-php }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
