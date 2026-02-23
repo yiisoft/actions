@@ -9,8 +9,13 @@ on:
         required: false
         type: boolean
       php:
-        description: PHP versions to test, separated by comma.
+        description: PHP versions to test in JSON format.
         default: '["8.1","8.2","8.3","8.4","8.5"]'
+        required: false
+        type: string
+      mysql:
+        description: MySQL version to test.
+        default: latest
         required: false
         type: string
 
@@ -22,6 +27,7 @@ jobs:
       composer-root-version: 2.0.0
       db-composer-root-version: 2.0.1
       extensions: pdo_mysql
+      last-php: 8.5
 
     runs-on: ubuntu-latest
 
@@ -31,7 +37,7 @@ jobs:
 
     services:
       mysql:
-        image: mysql:latest
+        image: mysql:${{ inputs.mysql }}
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_PASSWORD: ''
@@ -58,8 +64,8 @@ jobs:
           composer-root-version: ${{ env.composer-root-version }}
           package: db-mysql
 
-      - if: ${{ inputs.install-db }}
-        name: Install yiisoft/db package.
+      - name: Install yiisoft/db package.
+        if: ${{ inputs.install-db }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
           composer-root-version: ${{ env.db-composer-root-version }}
@@ -69,7 +75,7 @@ jobs:
         run: vendor/bin/phpunit --testsuite=Mysql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
 
       - name: Upload coverage to Codecov.
-        if: matrix.php == '8.5'
+        if: ${{ matrix.php == env.last-php }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
