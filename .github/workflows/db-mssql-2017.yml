@@ -21,7 +21,7 @@ on:
 
 jobs:
   tests:
-    name: MSSQL 2017 (Windows)
+    name: PHP ${{ inputs.php }}
 
     env:
       COMPOSER_ROOT_VERSION: ${{ inputs.install-db && 'dev-master' || '2.0.1' }}
