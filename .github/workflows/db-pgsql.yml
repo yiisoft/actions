@@ -1,0 +1,82 @@
+name: db-pgsql
+
+on:
+  workflow_call:
+    inputs:
+      install-db:
+        description: Specifies whether to install `yiisoft/db`.
+        default: true
+        required: false
+        type: boolean
+      php:
+        description: PHP versions to test in JSON format.
+        default: '["8.1","8.2","8.3","8.4","8.5"]'
+        required: false
+        type: string
+      pgsql:
+        description: Postgres version to test.
+        default: 18
+        required: false
+        type: string
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }}
+
+    env:
+      composer-root-version: 2.0.1
+      db-composer-root-version: 2.0.1
+      extensions: pdo_pgsql
+      last-php: 8.5
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: ${{ fromJson(inputs.php) }}
+
+    services:
+      postgres:
+        image: postgres:${{ inputs.pgsql }}
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: yiitest
+        ports:
+          - 5432:5432
+        options: --name=postgres --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout.
+        uses: actions/checkout@v4
+
+      - name: Install PHP with extensions.
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.extensions }}
+          ini-values: date.timezone='UTC'
+          coverage: pcov
+
+      - name: Install Composer dependencies + required yiisoft/db-pgsql
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          composer-root-version: ${{ env.composer-root-version }}
+          package: db-pgsql
+
+      - name: Install yiisoft/db package.
+        if: ${{ inputs.install-db }}
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          composer-root-version: ${{ env.db-composer-root-version }}
+          package: db
+
+      - name: Run tests with phpunit.
+        run: vendor/bin/phpunit --testsuite=Pgsql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
+
+      - name: Upload coverage to Codecov.
+        if: ${{ matrix.php == env.last-php }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
