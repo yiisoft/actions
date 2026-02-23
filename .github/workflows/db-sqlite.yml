@@ -4,12 +4,12 @@ on:
   workflow_call:
     inputs:
       install-db:
-        description: Specifies whether to install `yiisoft/db`.
+        description: Specifies whether to install `yiisoft/db`. It is false only when running from `yiisoft/db`.
         default: true
         required: false
         type: boolean
       install-sqlite:
-        description: Specifies whether to install `yiisoft/sqlite`.
+        description: Specifies whether to install `yiisoft/sqlite`. It is false only when running from `yiisoft/sqlite`.
         default: true
         required: false
         type: boolean
@@ -29,6 +29,7 @@ jobs:
     name: PHP ${{ matrix.php }} ${{ matrix.os }}
 
     env:
+      # Sets composer root version for dependency compatibility. Required when running from `yiisoft/db` package.
       COMPOSER_ROOT_VERSION: ${{ inputs.install-db && 'dev-master' || '2.0.1' }}
       db-composer-root-version: 2.0.1
       sqlite-composer-root-version: 2.0.0

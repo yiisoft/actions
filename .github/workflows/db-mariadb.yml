@@ -4,12 +4,12 @@ on:
   workflow_call:
     inputs:
       install-db:
-        description: Specifies whether to install `yiisoft/db`.
+        description: Specifies whether to install `yiisoft/db`. It is false only when running from `yiisoft/db`.
         default: true
         required: false
         type: boolean
       install-mysql:
-        description: Specifies whether to install `yiisoft/mysql`.
+        description: Specifies whether to install `yiisoft/mysql`. It is false only when running from `yiisoft/mysql`.
         default: true
         required: false
         type: boolean
@@ -35,6 +35,7 @@ jobs:
 
     env:
       YII_MYSQL_TYPE: 'mariadb'
+      # Sets composer root version for dependency compatibility. Required when running from `yiisoft/db` package.
       COMPOSER_ROOT_VERSION: ${{ inputs.install-db && 'dev-master' || '2.0.1' }}
       db-composer-root-version: 2.0.1
       mysql-composer-root-version: 2.0.0

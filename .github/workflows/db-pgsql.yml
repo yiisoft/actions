@@ -4,12 +4,12 @@ on:
   workflow_call:
     inputs:
       install-db:
-        description: Specifies whether to install `yiisoft/db`.
+        description: Specifies whether to install `yiisoft/db`. It is false only when running from `yiisoft/db`.
         default: true
         required: false
         type: boolean
       install-pgsql:
-        description: Specifies whether to install `yiisoft/pgsql`.
+        description: Specifies whether to install `yiisoft/pgsql`. It is false only when running from `yiisoft/pgsql`.
         default: true
         required: false
         type: boolean
@@ -34,6 +34,7 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     env:
+      # Sets composer root version for dependency compatibility. Required when running from `yiisoft/db` package.
       COMPOSER_ROOT_VERSION: ${{ inputs.install-db && 'dev-master' || '2.0.1' }}
       db-composer-root-version: 2.0.1
       pgsql-composer-root-version: 2.0.1
