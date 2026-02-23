@@ -8,9 +8,19 @@ on:
         default: true
         required: false
         type: boolean
+      install-sqlite:
+        description: Specifies whether to install `yiisoft/sqlite`.
+        default: true
+        required: false
+        type: boolean
       php:
         description: PHP versions to test in JSON format.
         default: '["8.1","8.2","8.3","8.4","8.5"]'
+        required: false
+        type: string
+      codecov-php:
+        description: PHP version to upload coverage to Codecov.
+        default: 8.5
         required: false
         type: string
 
@@ -22,7 +32,6 @@ jobs:
       composer-root-version: 2.0.0
       db-composer-root-version: 2.0.1
       extensions: pdo_sqlite
-      last-php: 8.5
 
     runs-on: ${{ matrix.os }}
 
@@ -46,6 +55,7 @@ jobs:
           coverage: pcov
 
       - name: Install Composer dependencies + required yiisoft/db-sqlite
+        if: ${{ inputs.install-sqlite }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
           composer-root-version: ${{ env.composer-root-version }}
@@ -62,7 +72,7 @@ jobs:
         run: vendor/bin/phpunit --testsuite=Sqlite --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
 
       - name: Upload coverage to Codecov.
-        if: ${{ matrix.php == env.last-php }}
+        if: ${{ matrix.php == inputs.codecov-php }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

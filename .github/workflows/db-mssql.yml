@@ -1,4 +1,4 @@
-name: db-pgsql
+name: db-mssql
 
 on:
   workflow_call:
@@ -8,14 +8,14 @@ on:
         default: true
         required: false
         type: boolean
-      install-pgsql:
-        description: Specifies whether to install `yiisoft/pgsql`.
+      install-mssql:
+        description: Specifies whether to install `yiisoft/mssql`.
         default: true
         required: false
         type: boolean
-      pgsql:
-        description: Postgres version to test.
-        default: 18
+      mssql:
+        description: MSSQL version to test.
+        default: 2022-latest
         required: false
         type: string
       php:
@@ -34,9 +34,9 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     env:
-      composer-root-version: 2.0.1
+      composer-root-version: 2.0.0
       db-composer-root-version: 2.0.1
-      extensions: pdo_pgsql
+      extensions: pdo_sqlsrv
 
     runs-on: ubuntu-latest
 
@@ -45,17 +45,27 @@ jobs:
         php: ${{ fromJson(inputs.php) }}
 
     services:
-      postgres:
-        image: postgres:${{ inputs.pgsql }}
+      mssql:
+        image: mcr.microsoft.com/mssql/server:${{ inputs.mssql }}
         env:
-          POSTGRES_USER: root
-          POSTGRES_PASSWORD: root
-          POSTGRES_DB: yiitest
+          SA_PASSWORD: YourStrong!Passw0rd
+          ACCEPT_EULA: Y
+          MSSQL_PID: Developer
         ports:
-          - 5432:5432
-        options: --name=postgres --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+          - 1433:1433
+        options: --name=mssql --health-cmd="/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
+      - name: Install ODBC driver.
+        run: |
+          sudo curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          sudo apt-get clean
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
+
+      - name: Create MS SQL Database.
+        run: docker exec -i mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
+
       - name: Checkout.
         uses: actions/checkout@v4
 
@@ -67,12 +77,12 @@ jobs:
           ini-values: date.timezone='UTC'
           coverage: pcov
 
-      - name: Install Composer dependencies + required yiisoft/db-pgsql
-        if: ${{ inputs.install-pgsql }}
+      - name: Install Composer dependencies + required yiisoft/db-mssql
+        if: ${{ inputs.install-mssql }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
           composer-root-version: ${{ env.composer-root-version }}
-          package: db-pgsql
+          package: db-mssql
 
       - name: Install yiisoft/db package.
         if: ${{ inputs.install-db }}
@@ -82,7 +92,7 @@ jobs:
           package: db
 
       - name: Run tests with phpunit.
-        run: vendor/bin/phpunit --testsuite=Pgsql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
+        run: vendor/bin/phpunit --testsuite=Mssql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
 
       - name: Upload coverage to Codecov.
         if: ${{ matrix.php == inputs.codecov-php }}

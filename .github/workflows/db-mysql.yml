@@ -8,14 +8,24 @@ on:
         default: true
         required: false
         type: boolean
+      install-mysql:
+        description: Specifies whether to install `yiisoft/mysql`.
+        default: true
+        required: false
+        type: boolean
+      mysql:
+        description: MySQL version to test.
+        default: latest
+        required: false
+        type: string
       php:
         description: PHP versions to test in JSON format.
         default: '["8.1","8.2","8.3","8.4","8.5"]'
         required: false
         type: string
-      mysql:
-        description: MySQL version to test.
-        default: latest
+      codecov-php:
+        description: PHP version to upload coverage to Codecov.
+        default: 8.5
         required: false
         type: string
 
@@ -27,7 +37,6 @@ jobs:
       composer-root-version: 2.0.0
       db-composer-root-version: 2.0.1
       extensions: pdo_mysql
-      last-php: 8.5
 
     runs-on: ubuntu-latest
 
@@ -59,6 +68,7 @@ jobs:
           coverage: pcov
 
       - name: Install Composer dependencies + required yiisoft/db-mysql
+        if: ${{ inputs.install-mysql }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
           composer-root-version: ${{ env.composer-root-version }}
@@ -75,7 +85,7 @@ jobs:
         run: vendor/bin/phpunit --testsuite=Mysql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
 
       - name: Upload coverage to Codecov.
-        if: ${{ matrix.php == env.last-php }}
+        if: ${{ matrix.php == inputs.codecov-php }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
