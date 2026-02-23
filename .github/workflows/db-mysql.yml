@@ -56,7 +56,7 @@ jobs:
         uses: yiisoft/actions/install-packages/install-package@master
         with:
           composer-root-version: ${{ env.composer-root-version }}
-          packages: db-mysql
+          package: db-mysql
 
       - if: ${{ inputs.install-db }}
         name: Install yiisoft/db package.
