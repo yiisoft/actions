@@ -5,7 +5,7 @@ on:
     inputs:
       install-db:
         description: Specifies whether to install `yiisoft/db`.
-        default: false
+        default: true
         required: false
         type: boolean
       php:
