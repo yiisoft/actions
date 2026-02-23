@@ -34,8 +34,9 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     env:
-      composer-root-version: 2.0.0
+      COMPOSER_ROOT_VERSION: ${{ inputs.install-db && 'dev-master' || '2.0.1' }}
       db-composer-root-version: 2.0.1
+      oracle-composer-root-version: 2.0.0
       extensions: pdo_oci
 
     runs-on: ubuntu-latest
@@ -78,7 +79,7 @@ jobs:
         if: ${{ inputs.install-oracle }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
-          composer-root-version: ${{ env.composer-root-version }}
+          composer-root-version: ${{ env.oracle-composer-root-version }}
           package: db-oracle
 
       - name: Install yiisoft/db package.

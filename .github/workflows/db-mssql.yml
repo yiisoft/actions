@@ -34,8 +34,9 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     env:
-      composer-root-version: 2.0.0
+      COMPOSER_ROOT_VERSION: ${{ inputs.install-db && 'dev-master' || '2.0.1' }}
       db-composer-root-version: 2.0.1
+      mssql-composer-root-version: 2.0.0
       extensions: pdo_sqlsrv
 
     runs-on: ubuntu-latest
@@ -81,7 +82,7 @@ jobs:
         if: ${{ inputs.install-mssql }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
-          composer-root-version: ${{ env.composer-root-version }}
+          composer-root-version: ${{ env.mssql-composer-root-version }}
           package: db-mssql
 
       - name: Install yiisoft/db package.

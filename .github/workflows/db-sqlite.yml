@@ -26,11 +26,12 @@ on:
 
 jobs:
   tests:
-    name: PHP ${{ matrix.php }}-${{ matrix.os }}
+    name: PHP ${{ matrix.php }} ${{ matrix.os }}
 
     env:
-      composer-root-version: 2.0.0
+      COMPOSER_ROOT_VERSION: ${{ inputs.install-db && 'dev-master' || '2.0.1' }}
       db-composer-root-version: 2.0.1
+      sqlite-composer-root-version: 2.0.0
       extensions: pdo_sqlite
 
     runs-on: ${{ matrix.os }}
@@ -58,7 +59,7 @@ jobs:
         if: ${{ inputs.install-sqlite }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
-          composer-root-version: ${{ env.composer-root-version }}
+          composer-root-version: ${{ env.sqlite-composer-root-version }}
           package: db-sqlite
 
       - name: Install yiisoft/db package.
