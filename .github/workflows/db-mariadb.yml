@@ -1,0 +1,89 @@
+name: db-mariadb
+
+on:
+  workflow_call:
+    inputs:
+      mariadb:
+        description: MariaDB version to test.
+        default: latest
+        required: false
+        type: string
+      php:
+        description: PHP versions to test in JSON format.
+        default: '["8.1","8.2","8.3","8.4","8.5"]'
+        required: false
+        type: string
+      codecov-php:
+        description: PHP version to upload coverage to Codecov.
+        default: 8.5
+        required: false
+        type: string
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }}
+
+    env:
+      YII_MYSQL_TYPE: 'mariadb'
+      db-composer-root-version: 2.0.1
+      mysql-composer-root-version: 2.0.0
+      extensions: pdo_mysql
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: ${{ fromJson(inputs.php) }}
+
+    services:
+      mysql:
+        image: mariadb:${{ inputs.mariadb }}
+        env:
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
+          MARIADB_ROOT_PASSWORD: ''
+          MARIADB_DATABASE: yiitest
+        ports:
+          - 3306:3306
+        options: --health-cmd="mariadb-admin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Set COMPOSER_ROOT_VERSION for yiisoft/db. # Required when running from `yiisoft/db` package.
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) == 'db' }}
+        shell: bash
+        run: |
+          echo "COMPOSER_ROOT_VERSION=${{ env.db-composer-root-version }}" >> $GITHUB_ENV
+
+      - name: Checkout.
+        uses: actions/checkout@v4
+
+      - name: Install PHP with extensions.
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.extensions }}
+          ini-values: date.timezone='UTC'
+          coverage: pcov
+
+      - name: Install Composer dependencies + required yiisoft/db-mysql
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db-mysql' }}
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          composer-root-version: ${{ env.mysql-composer-root-version }}
+          package: db-mysql
+
+      - name: Install yiisoft/db package.
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db' }}
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          composer-root-version: ${{ env.db-composer-root-version }}
+          package: db
+
+      - name: Run tests with phpunit.
+        run: vendor/bin/phpunit --testsuite=Mysql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
+
+      - name: Upload coverage to Codecov.
+        if: ${{ matrix.php == inputs.codecov-php }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml

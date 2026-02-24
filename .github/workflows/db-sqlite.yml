@@ -1,0 +1,75 @@
+name: db-sqlite
+
+on:
+  workflow_call:
+    inputs:
+      php:
+        description: PHP versions to test in JSON format.
+        default: '["8.1","8.2","8.3","8.4","8.5"]'
+        required: false
+        type: string
+      codecov-php:
+        description: PHP version to upload coverage to Codecov.
+        default: 8.5
+        required: false
+        type: string
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php }} ${{ matrix.os }}
+
+    env:
+      db-composer-root-version: 2.0.1
+      sqlite-composer-root-version: 2.0.0
+      extensions: pdo_sqlite
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        php: ${{ fromJson(inputs.php) }}
+
+    steps:
+      - name: Set COMPOSER_ROOT_VERSION for yiisoft/db. # Required when running from `yiisoft/db` package.
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) == 'db' }}
+        shell: bash
+        run: |
+          echo "COMPOSER_ROOT_VERSION=${{ env.db-composer-root-version }}" >> $GITHUB_ENV
+
+      - name: Checkout.
+        uses: actions/checkout@v4
+
+      - name: Install PHP with extensions.
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.extensions }}
+          ini-values: date.timezone='UTC'
+          coverage: pcov
+
+      - name: Install Composer dependencies + required yiisoft/db-sqlite
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db-sqlite' }}
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          composer-root-version: ${{ env.sqlite-composer-root-version }}
+          package: db-sqlite
+
+      - name: Install yiisoft/db package.
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db' }}
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          composer-root-version: ${{ env.db-composer-root-version }}
+          package: db
+
+      - name: Run tests with phpunit.
+        run: vendor/bin/phpunit --testsuite=Sqlite --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
+
+      - name: Upload coverage to Codecov.
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.php == inputs.codecov-php }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
