@@ -71,7 +71,7 @@ jobs:
           coverage: pcov
 
       - name: Install Composer dependencies + required yiisoft/db-oracle
-        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'oracle' }}
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db-oracle' }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
           composer-root-version: ${{ env.oracle-composer-root-version }}

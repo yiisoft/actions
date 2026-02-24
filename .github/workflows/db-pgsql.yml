@@ -64,7 +64,7 @@ jobs:
           coverage: pcov
 
       - name: Install Composer dependencies + required yiisoft/db-pgsql
-        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'pgsql' }}
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db-pgsql' }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
           composer-root-version: ${{ env.pgsql-composer-root-version }}

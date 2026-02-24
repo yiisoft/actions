@@ -51,7 +51,7 @@ jobs:
           coverage: pcov
 
       - name: Install Composer dependencies + required yiisoft/db-sqlite
-        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'sqlite' }}
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db-sqlite' }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
           composer-root-version: ${{ env.sqlite-composer-root-version }}

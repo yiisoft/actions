@@ -64,7 +64,7 @@ jobs:
           coverage: pcov
 
       - name: Install Composer dependencies + required yiisoft/db-mysql
-        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'mysql' }}
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db-mysql' }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
           composer-root-version: ${{ env.mysql-composer-root-version }}
