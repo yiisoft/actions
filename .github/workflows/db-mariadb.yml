@@ -3,16 +3,6 @@ name: db-mariadb
 on:
   workflow_call:
     inputs:
-      install-db:
-        description: Specifies whether to install `yiisoft/db`. It is false only when running from `yiisoft/db`.
-        default: true
-        required: false
-        type: boolean
-      install-mysql:
-        description: Specifies whether to install `yiisoft/mysql`. It is false only when running from `yiisoft/mysql`.
-        default: true
-        required: false
-        type: boolean
       mariadb:
         description: MariaDB version to test.
         default: latest
@@ -35,8 +25,6 @@ jobs:
 
     env:
       YII_MYSQL_TYPE: 'mariadb'
-      # Sets composer root version for dependency compatibility. Required when running from `yiisoft/db` package.
-      COMPOSER_ROOT_VERSION: ${{ inputs.install-db && 'dev-master' || '2.0.1' }}
       db-composer-root-version: 2.0.1
       mysql-composer-root-version: 2.0.0
       extensions: pdo_mysql
@@ -59,6 +47,12 @@ jobs:
         options: --health-cmd="mariadb-admin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
+      - name: Set COMPOSER_ROOT_VERSION for yiisoft/db. # Required when running from `yiisoft/db` package.
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) == 'db' }}
+        shell: bash
+        run: |
+          echo "COMPOSER_ROOT_VERSION=${{ env.db-composer-root-version }}" >> $GITHUB_ENV
+
       - name: Checkout.
         uses: actions/checkout@v4
 
@@ -71,14 +65,14 @@ jobs:
           coverage: pcov
 
       - name: Install Composer dependencies + required yiisoft/db-mysql
-        if: ${{ inputs.install-mysql }}
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'mysql' }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
           composer-root-version: ${{ env.mysql-composer-root-version }}
           package: db-mysql
 
       - name: Install yiisoft/db package.
-        if: ${{ inputs.install-db }}
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db' }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
           composer-root-version: ${{ env.db-composer-root-version }}

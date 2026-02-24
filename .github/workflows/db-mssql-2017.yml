@@ -3,16 +3,6 @@ name: db-mssql
 on:
   workflow_call:
     inputs:
-      install-db:
-        description: Specifies whether to install `yiisoft/db`. It is false only when running from `yiisoft/db`.
-        default: true
-        required: false
-        type: boolean
-      install-mssql:
-        description: Specifies whether to install `yiisoft/mssql`. It is false only when running from `yiisoft/mssql`.
-        default: true
-        required: false
-        type: boolean
       php:
         description: PHP version to test.
         default: 8.5
@@ -24,8 +14,6 @@ jobs:
     name: PHP ${{ inputs.php }}
 
     env:
-      # Sets composer root version for dependency compatibility. Required when running from `yiisoft/db` package.
-      COMPOSER_ROOT_VERSION: ${{ inputs.install-db && 'dev-master' || '2.0.1' }}
       db-composer-root-version: 2.0.1
       mssql-composer-root-version: 2.0.0
       extensions: pdo_sqlsrv
@@ -33,6 +21,12 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Set COMPOSER_ROOT_VERSION for yiisoft/db. # Required when running from `yiisoft/db` package.
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) == 'db' }}
+        shell: bash
+        run: |
+          echo "COMPOSER_ROOT_VERSION=${{ env.db-composer-root-version }}" >> $GITHUB_ENV
+
       - name: Install SQL Server on Windows.
         run: choco install sql-server-express --version=2017.20190916 -y --no-progress --ia="'/Q /SUPPRESSPRIVACYSTATEMENTNOTICE /IACCEPTSQLSERVERLICENSETERMS /ACTION=install /INSTANCEID=MSSQLSERVER /INSTANCENAME=MSSQLSERVER /UPDATEENABLED=FALSE /SECURITYMODE=SQL /TCPENABLED=1 /SAPWD=YourStrong!Passw0rd'"
 
@@ -51,14 +45,14 @@ jobs:
           coverage: pcov
 
       - name: Install Composer dependencies + required yiisoft/db-mssql
-        if: ${{ inputs.install-mssql }}
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'mssql' }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
           composer-root-version: ${{ env.mssql-composer-root-version }}
           package: db-mssql
 
       - name: Install yiisoft/db package.
-        if: ${{ inputs.install-db }}
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db' }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
           composer-root-version: ${{ env.db-composer-root-version }}
