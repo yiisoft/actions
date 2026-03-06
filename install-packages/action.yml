@@ -10,7 +10,7 @@ runs:
   using: "composite"
 
   steps:
-    - name: Get the latest release tag name of yiisoft/${{ github.event.pull_request.base.repo.name || github.event.repository.name }}
+    - name: Get the latest release tag names
       id: latest_release
       uses: actions/github-script@v8
       with:
