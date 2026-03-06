@@ -20,7 +20,7 @@ runs:
       uses: actions/github-script@v8
       with:
         script: |
-          const latestRelease = await github.rest.repos.getLatestRelease({'yiisoft', ${{ inputs.package }} });
+          const latestRelease = await github.rest.repos.getLatestRelease({'yiisoft', '${{ inputs.package }}' });
           core.setOutput('tag_name', latestRelease.data.tag_name);
 
     - if: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
