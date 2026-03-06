@@ -19,17 +19,17 @@ runs:
       uses: actions/github-script@v8
       with:
         script: |
-          const latestRelease = await github.rest.repos.getLatestRelease({
+          const packageLatestRelease = await github.rest.repos.getLatestRelease({
             owner: 'yiisoft',
             repo: '${{ inputs.package }}'
           });
-          core.setOutput('package', latestRelease.data.tag_name);
+          core.setOutput('package', packageLatestRelease.data.tag_name);
           if ('${{ inputs.composer-root-version }}' == '') {
-            const latestRelease = await github.rest.repos.getLatestRelease({
+            const currentLatestRelease = await github.rest.repos.getLatestRelease({
               owner: 'yiisoft',
               repo: '${{ github.event.pull_request.base.repo.name || github.event.repository.name }}'
             });
-            core.setOutput('current', latestRelease.data.tag_name);
+            core.setOutput('current', currentLatestRelease.data.tag_name);
           }
 
     - if: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
