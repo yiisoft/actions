@@ -24,8 +24,6 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     env:
-      db-composer-root-version: 2.0.1
-      mssql-composer-root-version: 2.0.0
       extensions: pdo_sqlsrv
 
     runs-on: ubuntu-latest
@@ -46,12 +44,6 @@ jobs:
         options: --name=mssql --health-cmd="/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
-      - name: Set COMPOSER_ROOT_VERSION for yiisoft/db. # Required when running from `yiisoft/db` package.
-        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) == 'db' }}
-        shell: bash
-        run: |
-          echo "COMPOSER_ROOT_VERSION=${{ env.db-composer-root-version }}" >> $GITHUB_ENV
-
       - name: Install ODBC driver.
         run: |
           sudo curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
@@ -77,14 +69,12 @@ jobs:
         if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db-mssql' }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
-          composer-root-version: ${{ env.mssql-composer-root-version }}
           package: db-mssql
 
       - name: Install yiisoft/db package.
         if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db' }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
-          composer-root-version: ${{ env.db-composer-root-version }}
           package: db
 
       - name: Run tests with phpunit.

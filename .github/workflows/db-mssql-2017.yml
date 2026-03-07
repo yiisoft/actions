@@ -14,19 +14,11 @@ jobs:
     name: PHP ${{ inputs.php }}
 
     env:
-      db-composer-root-version: 2.0.1
-      mssql-composer-root-version: 2.0.0
       extensions: pdo_sqlsrv
 
     runs-on: windows-latest
 
     steps:
-      - name: Set COMPOSER_ROOT_VERSION for yiisoft/db. # Required when running from `yiisoft/db` package.
-        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) == 'db' }}
-        shell: bash
-        run: |
-          echo "COMPOSER_ROOT_VERSION=${{ env.db-composer-root-version }}" >> $GITHUB_ENV
-
       - name: Install SQL Server on Windows.
         run: choco install sql-server-express --version=2017.20190916 -y --no-progress --ia="'/Q /SUPPRESSPRIVACYSTATEMENTNOTICE /IACCEPTSQLSERVERLICENSETERMS /ACTION=install /INSTANCEID=MSSQLSERVER /INSTANCENAME=MSSQLSERVER /UPDATEENABLED=FALSE /SECURITYMODE=SQL /TCPENABLED=1 /SAPWD=YourStrong!Passw0rd'"
 
@@ -48,14 +40,12 @@ jobs:
         if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db-mssql' }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
-          composer-root-version: ${{ env.mssql-composer-root-version }}
           package: db-mssql
 
       - name: Install yiisoft/db package.
         if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db' }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
-          composer-root-version: ${{ env.db-composer-root-version }}
           package: db
 
       - name: Run mssql tests with phpunit and code coverage.
