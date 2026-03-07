@@ -7,7 +7,6 @@ inputs:
     type: string
   composer-root-version:
     description: Composer root version.
-    default: dev-master
     required: false
     type: string
 
@@ -15,6 +14,24 @@ runs:
   using: "composite"
 
   steps:
+    - name: Get the latest release tag names
+      id: latest_release
+      uses: actions/github-script@v8
+      with:
+        script: |
+          const packageLatestRelease = await github.rest.repos.getLatestRelease({
+            owner: 'yiisoft',
+            repo: '${{ inputs.package }}'
+          });
+          core.setOutput('package', packageLatestRelease.data.tag_name);
+          if ('${{ inputs.composer-root-version }}' == '') {
+            const currentLatestRelease = await github.rest.repos.getLatestRelease({
+              owner: 'yiisoft',
+              repo: '${{ github.event.pull_request.base.repo.name || github.event.repository.name }}'
+            });
+            core.setOutput('current', currentLatestRelease.data.tag_name);
+          }
+
     - if: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
       name: Set environment variable for work package url (pull request).
       shell: bash
@@ -38,18 +55,18 @@ runs:
       run: |
         echo "Pull Request - Install from fork and branch exists."
         composer config repositories.yiisoft/${{ inputs.package }} git ${{ env.WORK_PACKAGE_URL }}${{ env.FORK_PREFIX }}${{ inputs.package }}
-        COMPOSER_ROOT_VERSION=${{ inputs.composer-root-version }} composer require "yiisoft/${{ inputs.package }}:${{ env.FULL_BRANCH_NAME }} as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi
+        COMPOSER_ROOT_VERSION=${{ inputs.composer-root-version || steps.latest_release.outputs.current }} composer require "yiisoft/${{ inputs.package }}:${{ env.FULL_BRANCH_NAME }} as ${{ steps.latest_release.outputs.package }}" --no-interaction --no-progress --optimize-autoloader --ansi
 
     - if: ${{ env.BRANCH_EXISTS == 1 && !github.event.pull_request.head.repo.fork }}
       name: Install from branch and branch exists.
       shell: bash
       run: |
         echo "Pull Request - Install from branch and branch exists."
-        composer require "yiisoft/${{ inputs.package }}:${{ env.FULL_BRANCH_NAME }} as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi
+        composer require "yiisoft/${{ inputs.package }}:${{ env.FULL_BRANCH_NAME }} as ${{ steps.latest_release.outputs.package }}" --no-interaction --no-progress --optimize-autoloader --ansi
 
     - if: ${{ env.BRANCH_EXISTS == 0 }}
       name: Install from master and branch not exists.
       shell: bash
       run: |
         echo "Pull Request - Install from master and branch not exists."
-        composer require "yiisoft/${{ inputs.package }}:dev-master as ${{ inputs.composer-root-version }}" --no-interaction --no-progress --optimize-autoloader --ansi
+        composer require "yiisoft/${{ inputs.package }}:dev-master as ${{ steps.latest_release.outputs.package }}" --no-interaction --no-progress --optimize-autoloader --ansi

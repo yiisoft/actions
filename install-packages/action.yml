@@ -5,54 +5,60 @@ inputs:
     description: List of packages to install, for example '["db", "db-sqlite"]'
     required: true
     type: string
-  composer-root-version:
-    description: Composer root version.
-    default: dev-master
-    required: false
-    type: string
 
 runs:
   using: "composite"
 
   steps:
+    - name: Get the latest release tag name of yiisoft/${{ github.event.pull_request.base.repo.name || github.event.repository.name }}
+      id: latest_release
+      uses: actions/github-script@v8
+      with:
+        script: |
+          const currentLatestRelease = await github.rest.repos.getLatestRelease({
+            owner: 'yiisoft',
+            repo: '${{ github.event.pull_request.base.repo.name || github.event.repository.name }}'
+          });
+          core.setOutput('current', currentLatestRelease.data.tag_name);
+
     - if: ${{ fromJSON(inputs.packages)[0] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[0] }}.
       uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[0] }}
-        composer-root-version: ${{ inputs.composer-root-version }}
+        composer-root-version: ${{ steps.latest_release.outputs.current }}
 
     - if: ${{ fromJSON(inputs.packages)[1] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[1] }}.
       uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[1] }}
-        composer-root-version: ${{ inputs.composer-root-version }}
+        composer-root-version: ${{ steps.latest_release.outputs.current }}
 
     - if: ${{ fromJSON(inputs.packages)[2] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[2] }}.
       uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[2] }}
-        composer-root-version: ${{ inputs.composer-root-version }}
+        composer-root-version: ${{ steps.latest_release.outputs.current }}
 
     - if: ${{ fromJSON(inputs.packages)[3] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[3] }}.
       uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[3] }}
-        composer-root-version: ${{ inputs.composer-root-version }}
+        composer-root-version: ${{ steps.latest_release.outputs.current }}
 
     - if: ${{ fromJSON(inputs.packages)[4] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[4] }}.
       uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[4] }}
-        composer-root-version: ${{ inputs.composer-root-version }}
+        composer-root-version: ${{ steps.latest_release.outputs.current }}
 
     - if: ${{ fromJSON(inputs.packages)[5] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[5] }}.
       uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[5] }}
-        composer-root-version: ${{ inputs.composer-root-version }}
+        composer-root-version: ${{ steps.latest_release.outputs.current }}
