@@ -32,6 +32,11 @@ runs:
             core.setOutput('current', currentLatestRelease.data.tag_name);
           }
 
+    - name: Set COMPOSER_ROOT_VERSION of yiisoft/${{ github.event.pull_request.base.repo.name || github.event.repository.name }}
+      shell: bash
+      run: |
+        echo "COMPOSER_ROOT_VERSION=${{ inputs.composer-root-version || steps.latest_release.outputs.current }}" >> $GITHUB_ENV
+
     - if: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
       name: Set environment variable for work package url (pull request).
       shell: bash
@@ -55,7 +60,7 @@ runs:
       run: |
         echo "Pull Request - Install from fork and branch exists."
         composer config repositories.yiisoft/${{ inputs.package }} git ${{ env.WORK_PACKAGE_URL }}${{ env.FORK_PREFIX }}${{ inputs.package }}
-        COMPOSER_ROOT_VERSION=${{ inputs.composer-root-version || steps.latest_release.outputs.current }} composer require "yiisoft/${{ inputs.package }}:${{ env.FULL_BRANCH_NAME }} as ${{ steps.latest_release.outputs.package }}" --no-interaction --no-progress --optimize-autoloader --ansi
+        composer require "yiisoft/${{ inputs.package }}:${{ env.FULL_BRANCH_NAME }} as ${{ steps.latest_release.outputs.package }}" --no-interaction --no-progress --optimize-autoloader --ansi
 
     - if: ${{ env.BRANCH_EXISTS == 1 && !github.event.pull_request.head.repo.fork }}
       name: Install from branch and branch exists.
