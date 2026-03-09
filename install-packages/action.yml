@@ -23,42 +23,42 @@ runs:
 
     - if: ${{ fromJSON(inputs.packages)[0] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[0] }}.
-      uses: yiisoft/actions/install-packages/install-package@auto-detect-versions
+      uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[0] }}
         composer-root-version: ${{ steps.latest_release.outputs.current }}
 
     - if: ${{ fromJSON(inputs.packages)[1] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[1] }}.
-      uses: yiisoft/actions/install-packages/install-package@auto-detect-versions
+      uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[1] }}
         composer-root-version: ${{ steps.latest_release.outputs.current }}
 
     - if: ${{ fromJSON(inputs.packages)[2] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[2] }}.
-      uses: yiisoft/actions/install-packages/install-package@auto-detect-versions
+      uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[2] }}
         composer-root-version: ${{ steps.latest_release.outputs.current }}
 
     - if: ${{ fromJSON(inputs.packages)[3] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[3] }}.
-      uses: yiisoft/actions/install-packages/install-package@auto-detect-versions
+      uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[3] }}
         composer-root-version: ${{ steps.latest_release.outputs.current }}
 
     - if: ${{ fromJSON(inputs.packages)[4] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[4] }}.
-      uses: yiisoft/actions/install-packages/install-package@auto-detect-versions
+      uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[4] }}
         composer-root-version: ${{ steps.latest_release.outputs.current }}
 
     - if: ${{ fromJSON(inputs.packages)[5] != '' }}
       name: Install ${{ fromJSON(inputs.packages)[5] }}.
-      uses: yiisoft/actions/install-packages/install-package@auto-detect-versions
+      uses: yiisoft/actions/install-packages/install-package@master
       with:
         package: ${{ fromJSON(inputs.packages)[5] }}
         composer-root-version: ${{ steps.latest_release.outputs.current }}
