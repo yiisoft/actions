@@ -1,0 +1,64 @@
+name: db-mutation
+
+on:
+  workflow_call:
+    inputs:
+      pgsql:
+        description: Postgres version to test.
+        default: 18
+        required: false
+        type: string
+      php:
+        description: PHP version to test.
+        default: 8.5
+        required: false
+        type: string
+
+jobs:
+  tests:
+    name: PHP ${{ inputs.php }}
+
+    env:
+      extensions: pdo_pgsql
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:${{ inputs.pgsql }}
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: yiitest
+        ports:
+          - 5432:5432
+        options: --name=postgres --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout.
+        uses: actions/checkout@v6
+
+      - name: Install PHP with extensions.
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ inputs.php }}
+          extensions: ${{ env.extensions }}
+          ini-values: date.timezone='UTC'
+
+      - name: Install Composer dependencies + required yiisoft/db-pgsql
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db-pgsql' }}
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          package: db-pgsql
+
+      - name: Install yiisoft/db package.
+        if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db' }}
+        uses: yiisoft/actions/install-packages/install-package@master
+        with:
+          package: db
+
+      - name: Run infection.
+        run: |
+          vendor/bin/infection --threads=2 --ignore-msi-with-no-mutations --test-framework-options="--testsuite=Pgsql"
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
