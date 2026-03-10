@@ -26,7 +26,7 @@ jobs:
         run: sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
 
       - name: Checkout.
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2
