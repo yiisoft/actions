@@ -44,12 +44,10 @@ jobs:
           php-version: ${{ inputs.php }}
           extensions: ${{ env.extensions }}
           ini-values: date.timezone='UTC'
+          tools: infection
           coverage: pcov
 
-      - name: Install Composer dependencies
-        uses: ramsey/composer-install@v3
-
-      - name: Install yiisoft/db-pgsql package.
+      - name: Install Composer dependencies + required yiisoft/db-pgsql package.
         if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db-pgsql' }}
         uses: yiisoft/actions/install-packages/install-package@master
         with:
