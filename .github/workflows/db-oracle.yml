@@ -9,7 +9,7 @@ on:
         required: false
         type: string
       php:
-        description: PHP versions to test in JSON format.
+        description: PHP versions to test, in JSON format.
         default: '["8.1","8.2","8.3","8.4","8.5"]'
         required: false
         type: string
@@ -52,7 +52,7 @@ jobs:
         run: docker exec -i oci bash -c "sqlplus -s system/root@XE <<< 'ALTER USER system DEFAULT TABLESPACE USERS;'"
 
       - name: Checkout.
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2

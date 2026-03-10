@@ -5,7 +5,7 @@ on:
     inputs:
       php:
         description: PHP version to run
-        default: '8.4'
+        default: 8.5
         required: false
         type: string
       extensions:
@@ -15,13 +15,8 @@ on:
       repository:
         type: string
         required: false
-      composer-root-version:
-        description: Composer root version
-        default: dev-master
-        required: false
-        type: string
       required-packages:
-        description: List of required packages to install, for example '["db", "db-sqlite"]'
+        description: List of required packages to install, in JSON format. For example '["db", "db-sqlite"]'.
         default: ''
         required: false
         type: string
@@ -36,28 +31,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: "actions/checkout@v5"
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.token || github.token }}
           ref: ${{ github.head_ref }}
           repository: ${{ inputs.repository }}
 
       - name: Install PHP with extensions
-        uses: "shivammathur/setup-php@v2"
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ inputs.php }}
           extensions: ${{ inputs.extensions }}
           coverage: none
 
       - name: Install Composer dependencies
-        uses: "ramsey/composer-install@v3"
+        uses: ramsey/composer-install@v3
 
       - name: Install required packages
         if: ${{ inputs.required-packages != '' }}
         uses: yiisoft/actions/install-packages@master
         with:
           packages: ${{ inputs.required-packages }}
-          composer-root-version: ${{ inputs.composer-root-version }}
 
       - name: Run PHP CS Fixer
         run: ./vendor/bin/php-cs-fixer fix
@@ -66,7 +60,7 @@ jobs:
         run: ./vendor/bin/rector --output-format=github
 
       - name: Commit changes
-        uses: "stefanzweifel/git-auto-commit-action@v5"
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Apply PHP CS Fixer and Rector changes (CI)"
           file_pattern: '*.php'
