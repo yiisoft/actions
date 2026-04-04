@@ -14,7 +14,7 @@ on:
         required: false
         type: string
     secrets:
-      CODECOV_TOKEN:
+      codecov-token:
         description: Codecov upload token
         required: false
 
@@ -65,5 +65,5 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.php == inputs.codecov-php }}
         uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.codecov-token }}
           files: ./coverage.xml
