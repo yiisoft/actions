@@ -34,7 +34,6 @@ jobs:
           php-version: ${{ inputs.php }}
           extensions: ${{ env.extensions }}
           ini-values: date.timezone='UTC'
-          coverage: pcov
 
       - name: Install Composer dependencies + required yiisoft/db-mssql
         if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db-mssql' }}
@@ -48,5 +47,5 @@ jobs:
         with:
           package: db
 
-      - name: Run mssql tests with phpunit and code coverage.
-        run: vendor/bin/phpunit --testsuite Mssql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
+      - name: Run mssql tests with phpunit.
+        run: vendor/bin/phpunit --testsuite Mssql --colors=always --display-warnings --display-deprecations
