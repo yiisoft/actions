@@ -60,6 +60,7 @@ jobs:
           extensions: ${{ inputs.extensions }}
           ini-values: ${{ inputs.ini-values }}
           php-version: ${{ matrix.php }}
+          tools: infection
 
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v3
@@ -72,6 +73,6 @@ jobs:
 
       - name: Run infection
         run: |
-          vendor/bin/infection ${{ inputs.infection-args }}
+          infection ${{ inputs.infection-args }}
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
