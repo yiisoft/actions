@@ -52,8 +52,11 @@ on:
         required: false
         type: boolean
     secrets:
-      codecovToken:
+      CODECOV_TOKEN:
         description: Codecov upload token
+        required: false
+      codecovToken:
+        description: Deprecated, use CODECOV_TOKEN
         required: false
 
 jobs:
@@ -121,7 +124,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.php == '8.1' && inputs.debug == false
         uses: codecov/codecov-action@v4
         with:
-          token: ${{ secrets.codecovToken }}
+          token: ${{ secrets.CODECOV_TOKEN || secrets.codecovToken }}
           files: tests/_output/coverage.xml
           verbose: ${{ inputs.codecovVerbose }}
 
