@@ -3,7 +3,7 @@ name: update-readme-packages
 on:
   workflow_call:
     secrets:
-      GITHUB_TOKEN:
+      TOKEN:
         description: GitHub token for authentication in workflows.
         required: false
 
@@ -20,7 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN || github.token }}
+          token: ${{ secrets.TOKEN || github.token }}
           ref: ${{ github.head_ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
 
