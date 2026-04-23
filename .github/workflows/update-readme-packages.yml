@@ -85,8 +85,8 @@ jobs:
               }
 
               const details = `\n<details id="${section}">\n<summary>${sections[section]}</summary>\n</details>\n`;
-              // Insert at the end of section "## Installation"
-              return readme.replace(/(## Installation.*?)(\n## |$)/s, `$1${details}$2`);
+              // Insert at the end of section "## Requirements"
+              return readme.replace(/(## Requirements.*?)(\n## |$)/s, `$1${details}$2`);
             }
 
             for (const section in sections) {
