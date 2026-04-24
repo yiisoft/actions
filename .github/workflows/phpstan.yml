@@ -51,7 +51,7 @@ jobs:
           php-version: ${{ matrix.php }}
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
 
       - name: Run static analysis
         run: vendor/bin/phpstan analyse --configuration=${{ inputs.phpstan-config }}

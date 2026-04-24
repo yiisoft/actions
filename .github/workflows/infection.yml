@@ -62,7 +62,7 @@ jobs:
           php-version: ${{ matrix.php }}
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
 
       - if: ${{ inputs.required-packages != '' }}
         name: Install required packages.

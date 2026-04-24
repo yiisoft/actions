@@ -65,7 +65,7 @@ jobs:
 
       - name: Install Composer dependencies
         if: inputs.usePackageBin == true
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
 
       - name: Install roave/backward-compatibility-check
         if: inputs.usePackageBin == false
