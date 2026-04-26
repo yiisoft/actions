@@ -95,7 +95,7 @@ jobs:
       - run: vendor/bin/rector process --ansi --output-format=github
 
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "Apply Rector changes (CI)"
           file_pattern: '*.php'
