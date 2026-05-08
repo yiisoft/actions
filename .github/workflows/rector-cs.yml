@@ -12,18 +12,11 @@ on:
         description: List of extensions to PHP
         required: false
         type: string
-      repository:
-        type: string
-        required: false
       required-packages:
         description: List of required packages to install, in JSON format. For example '["db", "db-sqlite"]'.
         default: ''
         required: false
         type: string
-    secrets:
-      token:
-        description: GitHub classic token with repo and workflow scopes
-        required: false
 
 jobs:
   rector-cs:
@@ -32,10 +25,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.token || github.token }}
-          ref: ${{ github.head_ref }}
-          repository: ${{ inputs.repository }}
 
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
