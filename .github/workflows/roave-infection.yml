@@ -38,6 +38,11 @@ on:
         default: 0
         required: false
         type: string
+      threads:
+        description: Number of threads to use for mutation testing. Can be a number or "max".
+        default: 'max'
+        required: false
+        type: string
       os:
         description: Operating systems to test, in JSON format.
         default: '["ubuntu-latest"]'
@@ -98,6 +103,6 @@ jobs:
 
       - name: Run roave infection.
         run: |
-          vendor/bin/${{ inputs.bin-name }} --threads=2 --min-msi=${{ inputs.min-msi }} --min-covered-msi=${{ inputs.min-covered-msi }} --ignore-msi-with-no-mutations
+          vendor/bin/${{ inputs.bin-name }} --threads=${{ inputs.threads }} --min-msi=${{ inputs.min-msi }} --min-covered-msi=${{ inputs.min-covered-msi }} --ignore-msi-with-no-mutations
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
