@@ -82,4 +82,4 @@ jobs:
           packages: ${{ inputs.required-packages }}
 
       - name: Run roave/backward-compatibility-check.
-        run: vendor/bin/roave-backward-compatibility-check ${{ inputs.install-development-dependencies && '--install-development-dependencies' || '' }}
+        run: vendor/bin/roave-backward-compatibility-check${{ inputs['install-development-dependencies'] && ' --install-development-dependencies' || '' }}
