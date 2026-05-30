@@ -12,6 +12,10 @@ on:
         description: Use binary installed with Composer and skip installing binary in the action.
         default: false
         type: boolean
+      install-development-dependencies:
+        description: Install development dependencies of the compared package.
+        default: false
+        type: boolean
       extensions:
         description: List of extensions to PHP.
         default: ''
@@ -78,4 +82,4 @@ jobs:
           packages: ${{ inputs.required-packages }}
 
       - name: Run roave/backward-compatibility-check.
-        run: vendor/bin/roave-backward-compatibility-check
+        run: vendor/bin/roave-backward-compatibility-check${{ inputs['install-development-dependencies'] && ' --install-development-dependencies' || '' }}
