@@ -45,10 +45,12 @@ jobs:
 
     steps:
       - name: Checkout.
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
 
       - name: Install PHP.
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45
         with:
           coverage: none
           extensions: ${{ inputs.extensions}}
@@ -59,7 +61,9 @@ jobs:
         run: composer self-update
 
       - name: Install dependencies with composer.
-        run: ${{ inputs.composer-command }}
+        run: $INPUTS_COMPOSER_COMMAND
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
 
       - name: Run easy-coding-standard.
         run: vendor/bin/ecs check src tests --ansi

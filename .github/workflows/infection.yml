@@ -51,10 +51,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
 
       - name: Install PHP with extensions
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45
         with:
           coverage: xdebug
           extensions: ${{ inputs.extensions }}
@@ -62,16 +64,17 @@ jobs:
           php-version: ${{ matrix.php }}
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@v4
+        uses: ramsey/composer-install@26d8a556604053a9612623447203a691f406fbe6
 
       - if: ${{ inputs.required-packages != '' }}
         name: Install required packages.
-        uses: yiisoft/actions/install-packages@master
+        uses: yiisoft/actions/install-packages@ab62d6b3b0e0cff6c9724ec5a395bedb41c639a2
         with:
           packages: ${{ inputs.required-packages }}
 
       - name: Run infection
         run: |
-          vendor/bin/infection ${{ inputs.infection-args }}
+          vendor/bin/infection $INPUTS_INFECTION_ARGS
         env:
+          INPUTS_INFECTION_ARGS: ${{ inputs.infection-args }}
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}

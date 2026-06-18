@@ -71,10 +71,12 @@ jobs:
 
     steps:
       - name: Checkout.
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
 
       - name: Install PHP with extensions.
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45
         with:
           coverage: pcov
           extensions: ${{ inputs.extensions }}
@@ -85,7 +87,7 @@ jobs:
         run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
 
       - name: Cache dependencies installed with composer.
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: ${{ env.COMPOSER_CACHE_DIR }}
           key: php${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
@@ -93,16 +95,22 @@ jobs:
             php${{ matrix.php }}-composer
 
       - name: Install dependencies with composer.
-        run: ${{ inputs.composer-command }}
+        run: $INPUTS_COMPOSER_COMMAND
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
 
       - if: ${{ inputs.required-packages != '' }}
         name: Install required packages.
-        uses: yiisoft/actions/install-packages@master
+        uses: yiisoft/actions/install-packages@ab62d6b3b0e0cff6c9724ec5a395bedb41c639a2
         with:
           packages: ${{ inputs.required-packages }}
 
       - name: Run roave infection.
         run: |
-          vendor/bin/${{ inputs.bin-name }} --threads=${{ inputs.threads }} --min-msi=${{ inputs.min-msi }} --min-covered-msi=${{ inputs.min-covered-msi }} --ignore-msi-with-no-mutations
+          "vendor/bin/$INPUTS_BIN_NAME" --threads="$INPUTS_THREADS" --min-msi="$INPUTS_MIN_MSI" --min-covered-msi="$INPUTS_MIN_COVERED_MSI" --ignore-msi-with-no-mutations
         env:
+          INPUTS_BIN_NAME: ${{ inputs.bin-name }}
+          INPUTS_THREADS: ${{ inputs.threads }}
+          INPUTS_MIN_MSI: ${{ inputs.min-msi }}
+          INPUTS_MIN_COVERED_MSI: ${{ inputs.min-covered-msi }}
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}

@@ -18,14 +18,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
         with:
           token: ${{ secrets.TOKEN || github.token }}
           ref: ${{ github.head_ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          persist-credentials: false
 
       - name: Update package lists in README.md
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
         with:
           script: |
             const fs = require('fs');
@@ -105,6 +106,11 @@ jobs:
 
             fs.writeFileSync('README.md', readme);
             console.log('README.md updated successfully');
+
+      - name: Configure Git credentials
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN || github.token }}
+        run: git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GH_TOKEN; }; f'
 
       - name: Commit changes
         run: |

@@ -16,62 +16,98 @@ runs:
   steps:
     - name: Get the latest release tag names
       id: latest_release
-      uses: actions/github-script@v8
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
+      env:
+        INPUTS_PACKAGE: ${{ inputs.package }}
+        INPUTS_COMPOSER_ROOT_VERSION: ${{ inputs.composer-root-version }}
+        CURRENT_REPOSITORY: ${{ github.event.pull_request.base.repo.name || github.event.repository.name }}
       with:
         script: |
           const packageLatestRelease = await github.rest.repos.getLatestRelease({
             owner: 'yiisoft',
-            repo: '${{ inputs.package }}'
+            repo: process.env.INPUTS_PACKAGE
           });
           core.setOutput('package', packageLatestRelease.data.tag_name);
-          if ('${{ inputs.composer-root-version }}' == '') {
+          if (process.env.INPUTS_COMPOSER_ROOT_VERSION === '') {
             const currentLatestRelease = await github.rest.repos.getLatestRelease({
               owner: 'yiisoft',
-              repo: '${{ github.event.pull_request.base.repo.name || github.event.repository.name }}'
+              repo: process.env.CURRENT_REPOSITORY
             });
             core.setOutput('current', currentLatestRelease.data.tag_name);
           }
 
     - name: Set COMPOSER_ROOT_VERSION of yiisoft/${{ github.event.pull_request.base.repo.name || github.event.repository.name }}
+      id: composer_root_version
       shell: bash
       run: |
-        echo "COMPOSER_ROOT_VERSION=${{ inputs.composer-root-version || steps.latest_release.outputs.current }}" >> $GITHUB_ENV
+        value="${INPUTS_COMPOSER_ROOT_VERSION:-$STEPS_LATEST_RELEASE_OUTPUTS_CURRENT}"
+        echo "value=$value" >> "$GITHUB_OUTPUT"
+      env:
+        INPUTS_COMPOSER_ROOT_VERSION: ${{ inputs.composer-root-version }}
+        STEPS_LATEST_RELEASE_OUTPUTS_CURRENT: ${{ steps.latest_release.outputs.current }}
 
     - if: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
       name: Set environment variable for work package url (pull request).
+      id: work_package
       shell: bash
       run: |
-        work_package_url="https://github.com/${{ github.event.pull_request.head.repo.owner.login }}/"
-        echo "WORK_PACKAGE_URL=${work_package_url}" >> $GITHUB_ENV
-        echo "FULL_BRANCH_NAME=dev-${{ github.head_ref }}" >> $GITHUB_ENV
-        if [[ "${{ github.event.pull_request.head.repo.name }}" != "${{ github.event.pull_request.base.repo.name }}" ]];
+        work_package_url="https://github.com/${GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_OWNER_LOGIN}/"
+        full_branch_name="dev-${GITHUB_HEAD_REF}"
+        fork_prefix=""
+        if [[ "${GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_NAME}" != "${GITHUB_EVENT_PULL_REQUEST_BASE_REPO_NAME}" ]];
         then
-            fork_name="${{ github.event.pull_request.head.repo.name }}"
-            repo_name="${{ github.event.pull_request.base.repo.name }}"
+            fork_name="${GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_NAME}"
+            repo_name="${GITHUB_EVENT_PULL_REQUEST_BASE_REPO_NAME}"
             fork_prefix=${fork_name%${repo_name}}
-            echo "FORK_PREFIX=${fork_prefix}" >> $GITHUB_ENV
         fi
-        if git ls-remote --heads --exit-code ${work_package_url}${fork_prefix}${{ inputs.package }} "${{ github.head_ref }}";
-        then echo "BRANCH_EXISTS=1" >> $GITHUB_ENV; else echo "BRANCH_EXISTS=0" >> $GITHUB_ENV; fi
+        if git ls-remote --heads --exit-code ${work_package_url}${fork_prefix}${INPUTS_PACKAGE} "${GITHUB_HEAD_REF}";
+        then branch_exists=1; else branch_exists=0; fi
+        {
+          echo "work_package_url=$work_package_url"
+          echo "full_branch_name=$full_branch_name"
+          echo "fork_prefix=$fork_prefix"
+          echo "branch_exists=$branch_exists"
+        } >> "$GITHUB_OUTPUT"
+      env:
+        GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_OWNER_LOGIN: ${{ github.event.pull_request.head.repo.owner.login }}
+        GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_NAME: ${{ github.event.pull_request.head.repo.name }}
+        GITHUB_EVENT_PULL_REQUEST_BASE_REPO_NAME: ${{ github.event.pull_request.base.repo.name }}
+        INPUTS_PACKAGE: ${{ inputs.package }}
 
-    - if: ${{ env.BRANCH_EXISTS == 1 && github.event.pull_request.head.repo.fork }}
+    - if: ${{ steps.work_package.outputs.branch_exists == '1' && github.event.pull_request.head.repo.fork }}
       name: Install from fork and branch exists.
       shell: bash
       run: |
         echo "Pull Request - Install from fork and branch exists."
-        composer config repositories.yiisoft/${{ inputs.package }} git ${{ env.WORK_PACKAGE_URL }}${{ env.FORK_PREFIX }}${{ inputs.package }}
-        composer require "yiisoft/${{ inputs.package }}:${{ env.FULL_BRANCH_NAME }} as ${{ steps.latest_release.outputs.package }}" --no-interaction --no-progress --optimize-autoloader --ansi
+        composer config repositories.yiisoft/${INPUTS_PACKAGE} git ${WORK_PACKAGE_URL}${FORK_PREFIX}${INPUTS_PACKAGE}
+        composer require "yiisoft/${INPUTS_PACKAGE}:${FULL_BRANCH_NAME} as ${STEPS_LATEST_RELEASE_OUTPUTS_PACKAGE}" --no-interaction --no-progress --optimize-autoloader --ansi
+      env:
+        INPUTS_PACKAGE: ${{ inputs.package }}
+        STEPS_LATEST_RELEASE_OUTPUTS_PACKAGE: ${{ steps.latest_release.outputs.package }}
+        COMPOSER_ROOT_VERSION: ${{ steps.composer_root_version.outputs.value }}
+        WORK_PACKAGE_URL: ${{ steps.work_package.outputs.work_package_url }}
+        FORK_PREFIX: ${{ steps.work_package.outputs.fork_prefix }}
+        FULL_BRANCH_NAME: ${{ steps.work_package.outputs.full_branch_name }}
 
-    - if: ${{ env.BRANCH_EXISTS == 1 && !github.event.pull_request.head.repo.fork }}
+    - if: ${{ steps.work_package.outputs.branch_exists == '1' && !github.event.pull_request.head.repo.fork }}
       name: Install from branch and branch exists.
       shell: bash
       run: |
         echo "Pull Request - Install from branch and branch exists."
-        composer require "yiisoft/${{ inputs.package }}:${{ env.FULL_BRANCH_NAME }} as ${{ steps.latest_release.outputs.package }}" --no-interaction --no-progress --optimize-autoloader --ansi
+        composer require "yiisoft/${INPUTS_PACKAGE}:${FULL_BRANCH_NAME} as ${STEPS_LATEST_RELEASE_OUTPUTS_PACKAGE}" --no-interaction --no-progress --optimize-autoloader --ansi
+      env:
+        INPUTS_PACKAGE: ${{ inputs.package }}
+        STEPS_LATEST_RELEASE_OUTPUTS_PACKAGE: ${{ steps.latest_release.outputs.package }}
+        COMPOSER_ROOT_VERSION: ${{ steps.composer_root_version.outputs.value }}
+        FULL_BRANCH_NAME: ${{ steps.work_package.outputs.full_branch_name }}
 
-    - if: ${{ env.BRANCH_EXISTS == 0 }}
+    - if: ${{ steps.work_package.outputs.branch_exists == '0' }}
       name: Install from master and branch not exists.
       shell: bash
       run: |
         echo "Pull Request - Install from master and branch not exists."
-        composer require "yiisoft/${{ inputs.package }}:dev-master as ${{ steps.latest_release.outputs.package }}" --no-interaction --no-progress --optimize-autoloader --ansi
+        composer require "yiisoft/${INPUTS_PACKAGE}:dev-master as ${STEPS_LATEST_RELEASE_OUTPUTS_PACKAGE}" --no-interaction --no-progress --optimize-autoloader --ansi
+      env:
+        INPUTS_PACKAGE: ${{ inputs.package }}
+        STEPS_LATEST_RELEASE_OUTPUTS_PACKAGE: ${{ steps.latest_release.outputs.package }}
+        COMPOSER_ROOT_VERSION: ${{ steps.composer_root_version.outputs.value }}
