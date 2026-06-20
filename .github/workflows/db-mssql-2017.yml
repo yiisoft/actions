@@ -39,13 +39,13 @@ jobs:
 
       - name: Install Composer dependencies + required yiisoft/db-mssql
         if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db-mssql' }}
-        uses: yiisoft/actions/install-packages/install-package@ab62d6b3b0e0cff6c9724ec5a395bedb41c639a2
+        uses: yiisoft/actions/install-packages/install-package@master
         with:
           package: db-mssql
 
       - name: Install yiisoft/db package.
         if: ${{ (github.event.pull_request.base.repo.name || github.event.repository.name) != 'db' }}
-        uses: yiisoft/actions/install-packages/install-package@ab62d6b3b0e0cff6c9724ec5a395bedb41c639a2
+        uses: yiisoft/actions/install-packages/install-package@master
         with:
           package: db
 

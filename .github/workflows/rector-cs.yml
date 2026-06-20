@@ -42,7 +42,7 @@ jobs:
 
       - name: Install required packages
         if: ${{ inputs.required-packages != '' }}
-        uses: yiisoft/actions/install-packages@ab62d6b3b0e0cff6c9724ec5a395bedb41c639a2
+        uses: yiisoft/actions/install-packages@master
         with:
           packages: ${{ inputs.required-packages }}
 
