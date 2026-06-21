@@ -18,12 +18,15 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   rector-cs:
     name: PHP ${{ inputs.php }}
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Required to push PHP CS Fixer and Rector changes back to the branch.
     steps:
       - name: Checkout repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
@@ -58,10 +61,13 @@ jobs:
         run: git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GH_TOKEN; }; f'
 
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9
         env:
           GH_TOKEN: ${{ github.token }}
-        with:
-          commit_message: "Apply PHP CS Fixer and Rector changes (CI)"
-          file_pattern: '*.php'
-          disable_globbing: true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -- '*.php'
+          git diff --cached --quiet || (
+            git commit -m "Apply PHP CS Fixer and Rector changes (CI)"
+            git push
+          )

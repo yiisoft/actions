@@ -38,6 +38,9 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   bc:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}

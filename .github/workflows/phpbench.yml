@@ -52,6 +52,9 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   phpbench:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
@@ -116,7 +119,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          if (("${{ github.event_name }}" -eq "pull_request") -and ("$env:GITHUB_REF" -ne "refs/heads/$env:GITHUB_EVENT_REPOSITORY_DEFAULT_BRANCH")) {
+          if (("$env:GITHUB_EVENT_NAME" -eq "pull_request") -and ("$env:GITHUB_REF" -ne "refs/heads/$env:GITHUB_EVENT_REPOSITORY_DEFAULT_BRANCH")) {
             Set-Content -Path $env:GITHUB_ENV -Value "WITH_BENCH_BASELINE=1" -NoNewline
           } else {
             Set-Content -Path $env:GITHUB_ENV -Value "WITH_BENCH_BASELINE=0" -NoNewline

@@ -38,13 +38,15 @@ runs:
 
     - name: Set COMPOSER_ROOT_VERSION of yiisoft/${{ github.event.pull_request.base.repo.name || github.event.repository.name }}
       id: composer_root_version
-      shell: bash
-      run: |
-        value="${INPUTS_COMPOSER_ROOT_VERSION:-$STEPS_LATEST_RELEASE_OUTPUTS_CURRENT}"
-        echo "value=$value" >> "$GITHUB_OUTPUT"
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
       env:
         INPUTS_COMPOSER_ROOT_VERSION: ${{ inputs.composer-root-version }}
         STEPS_LATEST_RELEASE_OUTPUTS_CURRENT: ${{ steps.latest_release.outputs.current }}
+      with:
+        script: |
+          const value = process.env.INPUTS_COMPOSER_ROOT_VERSION || process.env.STEPS_LATEST_RELEASE_OUTPUTS_CURRENT;
+          core.setOutput('value', value);
+          core.exportVariable('COMPOSER_ROOT_VERSION', value);
 
     - if: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
       name: Set environment variable for work package url (pull request).

@@ -9,6 +9,9 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   tests:
     name: PHP ${{ inputs.php }}

@@ -8,7 +8,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  actions: read
+  actions: read # Required by zizmor when reading workflow metadata through the API.
   contents: read
 
 jobs:

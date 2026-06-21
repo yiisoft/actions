@@ -18,6 +18,9 @@ on:
         description: Codecov upload token
         required: false
 
+permissions:
+  contents: read
+
 jobs:
   tests:
     name: PHP ${{ matrix.php }} ${{ matrix.os }}

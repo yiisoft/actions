@@ -27,6 +27,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   phpstan:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}

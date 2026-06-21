@@ -34,6 +34,9 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   composer-require-checker:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}

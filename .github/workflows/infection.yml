@@ -38,6 +38,9 @@ on:
       STRYKER_DASHBOARD_API_KEY:
         required: true
 
+permissions:
+  contents: read
+
 jobs:
   infection:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
