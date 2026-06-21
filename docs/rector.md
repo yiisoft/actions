@@ -58,3 +58,7 @@ jobs:
     secrets:
       token: ${{ secrets.REPO_GITHUB_TOKEN }}
 ```
+
+For pull requests from forks, the workflow runs Rector but does not commit changes
+back to the fork branch because GitHub does not expose write credentials to these
+runs.

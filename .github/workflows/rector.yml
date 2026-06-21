@@ -115,11 +115,13 @@ jobs:
       - run: vendor/bin/rector process --ansi --output-format=github
 
       - name: Configure Git credentials
+        if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
         env:
           GH_TOKEN: ${{ secrets.token || github.token }}
         run: git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GH_TOKEN; }; f'
 
       - name: Commit changes
+        if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
         env:
           GH_TOKEN: ${{ secrets.token || github.token }}
         run: |
