@@ -1,0 +1,13 @@
+rules:
+  unpinned-images:
+    ignore:
+      - db-mariadb.yml
+      - db-mssql.yml
+      - db-mutation.yml
+      - db-mysql.yml
+      - db-oracle.yml
+      - db-pgsql.yml
+  unpinned-uses:
+    config:
+      policies:
+        "yiisoft/*": any

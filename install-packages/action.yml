@@ -12,12 +12,14 @@ runs:
   steps:
     - name: Get the latest release tag name of yiisoft/${{ github.event.pull_request.base.repo.name || github.event.repository.name }}
       id: latest_release
-      uses: actions/github-script@v8
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
+      env:
+        CURRENT_REPOSITORY: ${{ github.event.pull_request.base.repo.name || github.event.repository.name }}
       with:
         script: |
           const currentLatestRelease = await github.rest.repos.getLatestRelease({
             owner: 'yiisoft',
-            repo: '${{ github.event.pull_request.base.repo.name || github.event.repository.name }}'
+            repo: process.env.CURRENT_REPOSITORY
           });
           core.setOutput('current', currentLatestRelease.data.tag_name);
 

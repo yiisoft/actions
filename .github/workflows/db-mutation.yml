@@ -14,6 +14,9 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   tests:
     name: PHP ${{ inputs.php }}
@@ -36,10 +39,12 @@ jobs:
 
     steps:
       - name: Checkout.
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
 
       - name: Install PHP with extensions.
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45
         with:
           php-version: ${{ inputs.php }}
           extensions: ${{ env.extensions }}

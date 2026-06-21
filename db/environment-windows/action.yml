@@ -6,16 +6,22 @@ runs:
   steps:
     - name: Set environment variable for work package url (pull request) windows.
       if: github.event_name == 'pull_request'
-      shell: pwsh
-      run: |
-        echo "WORK_PACKAGE_URL=https://github.com/${{ github.event.pull_request.head.repo.owner.login }}/" | Out-File -FilePath $env:GITHUB_ENV -Append
-        echo "BRANCH_NAME=${{ github.head_ref }}" | Out-File -FilePath $env:GITHUB_ENV -Append
-        echo "FULL_BRANCH_NAME=dev-${{ github.head_ref }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
+      env:
+        GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_OWNER_LOGIN: ${{ github.event.pull_request.head.repo.owner.login }}
+      with:
+        script: |
+          core.exportVariable('WORK_PACKAGE_URL', `https://github.com/${process.env.GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_OWNER_LOGIN}/`);
+          core.exportVariable('BRANCH_NAME', process.env.GITHUB_HEAD_REF);
+          core.exportVariable('FULL_BRANCH_NAME', `dev-${process.env.GITHUB_HEAD_REF}`);
 
     - name: Set environment variable for work package url (push) windows.
       if: github.event_name == 'push'
-      shell: pwsh
-      run: |
-        echo "WORK_PACKAGE_URL=https://github.com/${{ github.event.repository.owner.login }}/" | Out-File -FilePath $env:GITHUB_ENV -Append
-        echo "BRANCH_NAME=${{ github.ref_name }}" | Out-File -FilePath $env:GITHUB_ENV -Append
-        echo "FULL_BRANCH_NAME=dev-${{ github.ref_name }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
+      env:
+        GITHUB_EVENT_REPOSITORY_OWNER_LOGIN: ${{ github.event.repository.owner.login }}
+      with:
+        script: |
+          core.exportVariable('WORK_PACKAGE_URL', `https://github.com/${process.env.GITHUB_EVENT_REPOSITORY_OWNER_LOGIN}/`);
+          core.exportVariable('BRANCH_NAME', process.env.GITHUB_REF_NAME);
+          core.exportVariable('FULL_BRANCH_NAME', `dev-${process.env.GITHUB_REF_NAME}`);

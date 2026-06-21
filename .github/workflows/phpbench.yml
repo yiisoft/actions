@@ -52,6 +52,9 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   phpbench:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
@@ -66,7 +69,7 @@ jobs:
 
     steps:
       - name: Install PHP with extensions.
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45
         with:
           coverage: ${{ inputs.coverage }}
           extensions: ${{ inputs.extensions }}
@@ -75,9 +78,10 @@ jobs:
           tools: ${{ inputs.tools }}
 
       - name: Checkout.
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           path: ./current
+          persist-credentials: false
 
       - name: Determine composer cache directory on Linux.
         if: matrix.os == 'ubuntu-latest'
@@ -90,7 +94,7 @@ jobs:
         run: echo "COMPOSER_CACHE_DIR=~\AppData\Local\Composer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Cache dependencies installed with composer.
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: ${{ env.COMPOSER_CACHE_DIR }}
           key: php${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
@@ -103,42 +107,88 @@ jobs:
       - name: Check if we need to create a baseline for a PR (Linux).
         if: matrix.os == 'ubuntu-latest'
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.ref }}" != "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" && "$GITHUB_REF" != "refs/heads/$GITHUB_EVENT_REPOSITORY_DEFAULT_BRANCH" ]]; then
             echo "WITH_BENCH_BASELINE=1" >> $GITHUB_ENV
           else
             echo "WITH_BENCH_BASELINE=0" >> $GITHUB_ENV
           fi
+        env:
+          GITHUB_EVENT_REPOSITORY_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
 
       - name: Check if we need to create a baseline for a PR (Windows).
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          if (("${{ github.event_name }}" -eq "pull_request") -and ("${{ github.ref }}" -ne "refs/heads/${{ github.event.repository.default_branch }}")) {
+          if (("$env:GITHUB_EVENT_NAME" -eq "pull_request") -and ("$env:GITHUB_REF" -ne "refs/heads/$env:GITHUB_EVENT_REPOSITORY_DEFAULT_BRANCH")) {
             Set-Content -Path $env:GITHUB_ENV -Value "WITH_BENCH_BASELINE=1" -NoNewline
           } else {
             Set-Content -Path $env:GITHUB_ENV -Value "WITH_BENCH_BASELINE=0" -NoNewline
           }
+        env:
+          GITHUB_EVENT_REPOSITORY_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
 
       - name: "Baseline creation: Checkout default branch."
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         if: ${{ env.WITH_BENCH_BASELINE == '1' }}
         with:
           path: default
           ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
 
       - name: "Baseline creation: Install dependencies with composer."
-        if: ${{ env.WITH_BENCH_BASELINE == '1' }}
-        run: ${{ inputs.composer-command }}
+        if: ${{ env.WITH_BENCH_BASELINE == '1' && runner.os != 'Windows' }}
+        run: |
+          printf '%s\n' "$INPUTS_COMPOSER_COMMAND" > "$RUNNER_TEMP/composer-command.sh"
+          bash -e "$RUNNER_TEMP/composer-command.sh"
         working-directory: default
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
+
+      - name: "Baseline creation: Install dependencies with composer."
+        if: ${{ env.WITH_BENCH_BASELINE == '1' && runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          Set-Content -Path "$env:RUNNER_TEMP\composer-command.ps1" -Value $env:INPUTS_COMPOSER_COMMAND
+          & "$env:RUNNER_TEMP\composer-command.ps1"
+        working-directory: default
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
 
       - name: "Baseline creation: Run PhpBench."
-        if: ${{ env.WITH_BENCH_BASELINE == '1' }}
-        run: vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} --tag=default
+        if: ${{ env.WITH_BENCH_BASELINE == '1' && runner.os != 'Windows' }}
+        run: vendor/bin/phpbench run --report="$INPUTS_REPORT" --config="$INPUTS_CONFIG_FILE" --tag=default
         working-directory: default
+        env:
+          INPUTS_REPORT: ${{ inputs.report }}
+          INPUTS_CONFIG_FILE: ${{ inputs.config-file }}
+
+      - name: "Baseline creation: Run PhpBench."
+        if: ${{ env.WITH_BENCH_BASELINE == '1' && runner.os == 'Windows' }}
+        shell: pwsh
+        run: php vendor/bin/phpbench run --report="$env:INPUTS_REPORT" --config="$env:INPUTS_CONFIG_FILE" --tag=default
+        working-directory: default
+        env:
+          INPUTS_REPORT: ${{ inputs.report }}
+          INPUTS_CONFIG_FILE: ${{ inputs.config-file }}
 
       - name: Install dependencies with composer.
-        run: ${{ inputs.composer-command }}
+        if: runner.os != 'Windows'
+        run: |
+          printf '%s\n' "$INPUTS_COMPOSER_COMMAND" > "$RUNNER_TEMP/composer-command.sh"
+          bash -e "$RUNNER_TEMP/composer-command.sh"
         working-directory: ./current
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
+
+      - name: Install dependencies with composer.
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-Content -Path "$env:RUNNER_TEMP\composer-command.ps1" -Value $env:INPUTS_COMPOSER_COMMAND
+          & "$env:RUNNER_TEMP\composer-command.ps1"
+        working-directory: ./current
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
 
       - name: Copy PhpBench baseline data (Linux).
         if: ${{ env.WITH_BENCH_BASELINE == '1' && matrix.os == 'ubuntu-latest' }}
@@ -153,19 +203,27 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         working-directory: ./current
         run: |
-          if [ "${{ env.WITH_BENCH_BASELINE }}" == '1' ]; then
-            vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} --ref=default --assert="${{ inputs.baseline-assertion }}" > phpbench.log
+          if [ "$WITH_BENCH_BASELINE" == '1' ]; then
+            vendor/bin/phpbench run --report="$INPUTS_REPORT" --config="$INPUTS_CONFIG_FILE" --ref=default --assert="$INPUTS_BASELINE_ASSERTION" > phpbench.log
           else
-            vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} > phpbench.log
+            vendor/bin/phpbench run --report="$INPUTS_REPORT" --config="$INPUTS_CONFIG_FILE" > phpbench.log
           fi
+        env:
+          INPUTS_REPORT: ${{ inputs.report }}
+          INPUTS_CONFIG_FILE: ${{ inputs.config-file }}
+          INPUTS_BASELINE_ASSERTION: ${{ inputs.baseline-assertion }}
 
       - name: "Run PhpBench (Windows)."
         if: matrix.os == 'windows-latest'
         shell: pwsh
         working-directory: ./current
         run: |
-          if (${{ env.WITH_BENCH_BASELINE }} -eq '1') {
-            & php vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} --assert="${{ inputs.baseline-assertion }}" --ref=default | Out-File -FilePath phpbench.log -Encoding utf8
+          if ($env:WITH_BENCH_BASELINE -eq '1') {
+            & php vendor/bin/phpbench run --report="$env:INPUTS_REPORT" --config="$env:INPUTS_CONFIG_FILE" --assert="$env:INPUTS_BASELINE_ASSERTION" --ref=default | Out-File -FilePath phpbench.log -Encoding utf8
           } else {
-            & php vendor/bin/phpbench run --report='${{ inputs.report }}' --config=${{ inputs.config-file }} | Out-File -FilePath phpbench.log -Encoding utf8
+            & php vendor/bin/phpbench run --report="$env:INPUTS_REPORT" --config="$env:INPUTS_CONFIG_FILE" | Out-File -FilePath phpbench.log -Encoding utf8
           }
+        env:
+          INPUTS_REPORT: ${{ inputs.report }}
+          INPUTS_CONFIG_FILE: ${{ inputs.config-file }}
+          INPUTS_BASELINE_ASSERTION: ${{ inputs.baseline-assertion }}

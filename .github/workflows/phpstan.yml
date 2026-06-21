@@ -27,6 +27,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   phpstan:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
@@ -40,10 +43,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
 
       - name: Install PHP with extensions
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45
         with:
           coverage: xdebug
           extensions: ${{ inputs.extensions }}
@@ -51,7 +56,9 @@ jobs:
           php-version: ${{ matrix.php }}
 
       - name: Install Composer dependencies
-        uses: ramsey/composer-install@v4
+        uses: ramsey/composer-install@26d8a556604053a9612623447203a691f406fbe6
 
       - name: Run static analysis
-        run: vendor/bin/phpstan analyse --configuration=${{ inputs.phpstan-config }}
+        run: vendor/bin/phpstan analyse --configuration="$INPUTS_PHPSTAN_CONFIG"
+        env:
+          INPUTS_PHPSTAN_CONFIG: ${{ inputs.phpstan-config }}

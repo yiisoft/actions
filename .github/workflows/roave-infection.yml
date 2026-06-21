@@ -58,6 +58,9 @@ on:
       STRYKER_DASHBOARD_API_KEY:
         required: true
 
+permissions:
+  contents: read
+
 jobs:
   roave-infection:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
@@ -71,10 +74,12 @@ jobs:
 
     steps:
       - name: Checkout.
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
 
       - name: Install PHP with extensions.
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45
         with:
           coverage: pcov
           extensions: ${{ inputs.extensions }}
@@ -85,7 +90,7 @@ jobs:
         run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
 
       - name: Cache dependencies installed with composer.
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: ${{ env.COMPOSER_CACHE_DIR }}
           key: php${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
@@ -93,7 +98,21 @@ jobs:
             php${{ matrix.php }}-composer
 
       - name: Install dependencies with composer.
-        run: ${{ inputs.composer-command }}
+        if: runner.os != 'Windows'
+        run: |
+          printf '%s\n' "$INPUTS_COMPOSER_COMMAND" > "$RUNNER_TEMP/composer-command.sh"
+          bash -e "$RUNNER_TEMP/composer-command.sh"
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
+
+      - name: Install dependencies with composer.
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-Content -Path "$env:RUNNER_TEMP\composer-command.ps1" -Value $env:INPUTS_COMPOSER_COMMAND
+          & "$env:RUNNER_TEMP\composer-command.ps1"
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
 
       - if: ${{ inputs.required-packages != '' }}
         name: Install required packages.
@@ -103,6 +122,10 @@ jobs:
 
       - name: Run roave infection.
         run: |
-          vendor/bin/${{ inputs.bin-name }} --threads=${{ inputs.threads }} --min-msi=${{ inputs.min-msi }} --min-covered-msi=${{ inputs.min-covered-msi }} --ignore-msi-with-no-mutations
+          "vendor/bin/$INPUTS_BIN_NAME" --threads="$INPUTS_THREADS" --min-msi="$INPUTS_MIN_MSI" --min-covered-msi="$INPUTS_MIN_COVERED_MSI" --ignore-msi-with-no-mutations
         env:
+          INPUTS_BIN_NAME: ${{ inputs.bin-name }}
+          INPUTS_THREADS: ${{ inputs.threads }}
+          INPUTS_MIN_MSI: ${{ inputs.min-msi }}
+          INPUTS_MIN_COVERED_MSI: ${{ inputs.min-covered-msi }}
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
