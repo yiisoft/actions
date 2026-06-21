@@ -29,6 +29,7 @@ jobs:
     uses: yiisoft/actions/.github/workflows/phpunit.yml@master
     with:
       # coverage: pcov / coverage: xdebug / coverage: xdebug2 / coverage: none 
+      # codecovFailCiIfError: false
       # extensions: pdo, pdo_pgsql
       # ini-values: date.timezone='UTC'      
       os: >-
