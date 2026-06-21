@@ -82,7 +82,7 @@ jobs:
 
       - name: Upload coverage to Codecov.
         if: ${{ matrix.php == inputs.codecov-php }}
-        uses: codecov/codecov-action@04b047e8bb82a0c002c8312c1c880fbc6a999d45
+        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
