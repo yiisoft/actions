@@ -109,21 +109,37 @@ jobs:
         run: composer self-update
 
       - name: Install dependencies with composer.
-        run: $INPUTS_COMPOSER_COMMAND
+        if: runner.os != 'Windows'
+        run: |
+          printf '%s\n' "$INPUTS_COMPOSER_COMMAND" > "$RUNNER_TEMP/composer-command.sh"
+          bash -e "$RUNNER_TEMP/composer-command.sh"
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
+
+      - name: Install dependencies with composer.
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          Set-Content -Path "$env:RUNNER_TEMP\composer-command.ps1" -Value $env:INPUTS_COMPOSER_COMMAND
+          & "$env:RUNNER_TEMP\composer-command.ps1"
         env:
           INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
 
       - name: Run tests with codeception with code coverage with shell bash.
         if: matrix.os == 'ubuntu-latest'
         continue-on-error:  ${{ inputs.debug }}
-        run: $INPUTS_CODECEPTION_COMMAND
+        run: |
+          printf '%s\n' "$INPUTS_CODECEPTION_COMMAND" > "$RUNNER_TEMP/codeception-command.sh"
+          bash -e "$RUNNER_TEMP/codeception-command.sh"
         env:
           INPUTS_CODECEPTION_COMMAND: ${{ inputs.codeception-command }}
 
       - name: Run tests with codeception with code coverage with shell powershell.
         if: matrix.os == 'windows-latest'
         continue-on-error:  ${{ inputs.debug }}
-        run: $env:INPUTS_CODECEPTION_COMMAND
+        run: |
+          Set-Content -Path "$env:RUNNER_TEMP\codeception-command.ps1" -Value $env:INPUTS_CODECEPTION_COMMAND
+          & "$env:RUNNER_TEMP\codeception-command.ps1"
         shell: powershell
         env:
           INPUTS_CODECEPTION_COMMAND: ${{ inputs.codeception-command }}

@@ -61,7 +61,19 @@ jobs:
         run: composer self-update
 
       - name: Install dependencies with composer.
-        run: $INPUTS_COMPOSER_COMMAND
+        if: runner.os != 'Windows'
+        run: |
+          printf '%s\n' "$INPUTS_COMPOSER_COMMAND" > "$RUNNER_TEMP/composer-command.sh"
+          bash -e "$RUNNER_TEMP/composer-command.sh"
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
+
+      - name: Install dependencies with composer.
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-Content -Path "$env:RUNNER_TEMP\composer-command.ps1" -Value $env:INPUTS_COMPOSER_COMMAND
+          & "$env:RUNNER_TEMP\composer-command.ps1"
         env:
           INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
 

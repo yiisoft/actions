@@ -79,7 +79,19 @@ jobs:
             php${{ matrix.php }}-composer-
 
       - name: Install dependencies with composer
-        run: $INPUTS_COMPOSER_COMMAND
+        if: runner.os != 'Windows'
+        run: |
+          printf '%s\n' "$INPUTS_COMPOSER_COMMAND" > "$RUNNER_TEMP/composer-command.sh"
+          bash -e "$RUNNER_TEMP/composer-command.sh"
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
+
+      - name: Install dependencies with composer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-Content -Path "$env:RUNNER_TEMP\composer-command.ps1" -Value $env:INPUTS_COMPOSER_COMMAND
+          & "$env:RUNNER_TEMP\composer-command.ps1"
         env:
           INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
 
@@ -104,6 +116,8 @@ jobs:
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9
+        env:
+          GH_TOKEN: ${{ secrets.token || github.token }}
         with:
           commit_message: "Apply Rector changes (CI)"
           file_pattern: '*.php'

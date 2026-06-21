@@ -133,22 +133,56 @@ jobs:
           persist-credentials: false
 
       - name: "Baseline creation: Install dependencies with composer."
-        if: ${{ env.WITH_BENCH_BASELINE == '1' }}
-        run: $INPUTS_COMPOSER_COMMAND
+        if: ${{ env.WITH_BENCH_BASELINE == '1' && runner.os != 'Windows' }}
+        run: |
+          printf '%s\n' "$INPUTS_COMPOSER_COMMAND" > "$RUNNER_TEMP/composer-command.sh"
+          bash -e "$RUNNER_TEMP/composer-command.sh"
+        working-directory: default
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
+
+      - name: "Baseline creation: Install dependencies with composer."
+        if: ${{ env.WITH_BENCH_BASELINE == '1' && runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          Set-Content -Path "$env:RUNNER_TEMP\composer-command.ps1" -Value $env:INPUTS_COMPOSER_COMMAND
+          & "$env:RUNNER_TEMP\composer-command.ps1"
         working-directory: default
         env:
           INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
 
       - name: "Baseline creation: Run PhpBench."
-        if: ${{ env.WITH_BENCH_BASELINE == '1' }}
+        if: ${{ env.WITH_BENCH_BASELINE == '1' && runner.os != 'Windows' }}
         run: vendor/bin/phpbench run --report="$INPUTS_REPORT" --config="$INPUTS_CONFIG_FILE" --tag=default
         working-directory: default
         env:
           INPUTS_REPORT: ${{ inputs.report }}
           INPUTS_CONFIG_FILE: ${{ inputs.config-file }}
 
+      - name: "Baseline creation: Run PhpBench."
+        if: ${{ env.WITH_BENCH_BASELINE == '1' && runner.os == 'Windows' }}
+        shell: pwsh
+        run: php vendor/bin/phpbench run --report="$env:INPUTS_REPORT" --config="$env:INPUTS_CONFIG_FILE" --tag=default
+        working-directory: default
+        env:
+          INPUTS_REPORT: ${{ inputs.report }}
+          INPUTS_CONFIG_FILE: ${{ inputs.config-file }}
+
       - name: Install dependencies with composer.
-        run: $INPUTS_COMPOSER_COMMAND
+        if: runner.os != 'Windows'
+        run: |
+          printf '%s\n' "$INPUTS_COMPOSER_COMMAND" > "$RUNNER_TEMP/composer-command.sh"
+          bash -e "$RUNNER_TEMP/composer-command.sh"
+        working-directory: ./current
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
+
+      - name: Install dependencies with composer.
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Set-Content -Path "$env:RUNNER_TEMP\composer-command.ps1" -Value $env:INPUTS_COMPOSER_COMMAND
+          & "$env:RUNNER_TEMP\composer-command.ps1"
         working-directory: ./current
         env:
           INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
@@ -182,9 +216,9 @@ jobs:
         working-directory: ./current
         run: |
           if ($env:WITH_BENCH_BASELINE -eq '1') {
-            & php vendor/bin/phpbench run --report='$env:INPUTS_REPORT' --config=$env:INPUTS_CONFIG_FILE --assert="$env:INPUTS_BASELINE_ASSERTION" --ref=default | Out-File -FilePath phpbench.log -Encoding utf8
+            & php vendor/bin/phpbench run --report="$env:INPUTS_REPORT" --config="$env:INPUTS_CONFIG_FILE" --assert="$env:INPUTS_BASELINE_ASSERTION" --ref=default | Out-File -FilePath phpbench.log -Encoding utf8
           } else {
-            & php vendor/bin/phpbench run --report='$env:INPUTS_REPORT' --config=$env:INPUTS_CONFIG_FILE | Out-File -FilePath phpbench.log -Encoding utf8
+            & php vendor/bin/phpbench run --report="$env:INPUTS_REPORT" --config="$env:INPUTS_CONFIG_FILE" | Out-File -FilePath phpbench.log -Encoding utf8
           }
         env:
           INPUTS_REPORT: ${{ inputs.report }}

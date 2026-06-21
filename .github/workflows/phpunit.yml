@@ -108,14 +108,36 @@ jobs:
             php${{ matrix.php }}-composer-
 
       - name: Install dependencies with Composer
-        if: ${{ !inputs.prefer-lowest }}
-        run: $INPUTS_COMPOSER_COMMAND
+        if: ${{ !inputs.prefer-lowest && runner.os != 'Windows' }}
+        run: |
+          printf '%s\n' "$INPUTS_COMPOSER_COMMAND" > "$RUNNER_TEMP/composer-command.sh"
+          bash -e "$RUNNER_TEMP/composer-command.sh"
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
+
+      - name: Install dependencies with Composer
+        if: ${{ !inputs.prefer-lowest && runner.os == 'Windows' }}
+        shell: powershell
+        run: |
+          Set-Content -Path "$env:RUNNER_TEMP\composer-command.ps1" -Value $env:INPUTS_COMPOSER_COMMAND
+          & "$env:RUNNER_TEMP\composer-command.ps1"
         env:
           INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
 
       - name: Install dependencies with Composer (prefer lowest)
-        if: ${{ inputs.prefer-lowest }}
-        run: $INPUTS_COMPOSER_COMMAND --prefer-lowest
+        if: ${{ inputs.prefer-lowest && runner.os != 'Windows' }}
+        run: |
+          printf '%s --prefer-lowest\n' "$INPUTS_COMPOSER_COMMAND" > "$RUNNER_TEMP/composer-command.sh"
+          bash -e "$RUNNER_TEMP/composer-command.sh"
+        env:
+          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
+
+      - name: Install dependencies with Composer (prefer lowest)
+        if: ${{ inputs.prefer-lowest && runner.os == 'Windows' }}
+        shell: powershell
+        run: |
+          Set-Content -Path "$env:RUNNER_TEMP\composer-command.ps1" -Value "$env:INPUTS_COMPOSER_COMMAND --prefer-lowest"
+          & "$env:RUNNER_TEMP\composer-command.ps1"
         env:
           INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
 

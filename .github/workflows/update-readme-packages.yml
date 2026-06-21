@@ -113,6 +113,8 @@ jobs:
         run: git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GH_TOKEN; }; f'
 
       - name: Commit changes
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN || github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
