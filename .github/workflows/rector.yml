@@ -62,7 +62,7 @@ jobs:
         with:
           token: ${{ secrets.token || github.token }}
           ref: ${{ github.head_ref }}
-          repository: ${{ inputs.repository }}
+          repository: ${{ inputs.repository || github.event.pull_request.head.repo.full_name || github.repository }}
           persist-credentials: false
 
       - name: Install PHP with extensions
