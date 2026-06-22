@@ -155,8 +155,16 @@ jobs:
         with:
           packages: ${{ inputs.required-packages }}
 
-      - name: Run tests with phpunit with code coverage.
+      - name: Run tests with PHPUnit with code coverage
+        if: ${{ runner.os != 'Windows' }}
         run: vendor/bin/phpunit --coverage-clover=coverage.xml --colors=always --configuration "$INPUTS_PHPUNIT_CONFIG"
+        env:
+          INPUTS_PHPUNIT_CONFIG: ${{ inputs.phpunitConfig }}
+
+      - name: Run tests with PHPUnit with code coverage
+        if: ${{ runner.os == 'Windows' }}
+        shell: powershell
+        run: vendor/bin/phpunit --coverage-clover=coverage.xml --colors=always --configuration "$env:INPUTS_PHPUNIT_CONFIG"
         env:
           INPUTS_PHPUNIT_CONFIG: ${{ inputs.phpunitConfig }}
 
