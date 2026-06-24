@@ -73,7 +73,7 @@ jobs:
 
       - name: Install roave/backward-compatibility-check
         if: inputs.usePackageBin == false
-        run: composer require --dev roave/backward-compatibility-check
+        run: composer require --dev roave/backward-compatibility-check --with-all-dependencies --no-progress --ansi
 
       - if: ${{ inputs.required-packages != '' }}
         name: Install required packages.
