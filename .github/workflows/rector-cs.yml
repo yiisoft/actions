@@ -65,4 +65,4 @@ jobs:
           git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GITHUB_TOKEN; }; f'
           git add '*.php'
           git diff --staged --quiet || git commit -m "Apply PHP CS Fixer and Rector changes (CI)"
-          git push "HEAD:${HEAD_REF}"
+          git push origin "HEAD:${HEAD_REF}"
