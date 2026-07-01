@@ -16,7 +16,7 @@ runs:
   steps:
     - name: Get the latest release tag names
       id: latest_release
-      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
       env:
         INPUTS_PACKAGE: ${{ inputs.package }}
         INPUTS_COMPOSER_ROOT_VERSION: ${{ inputs.composer-root-version }}
@@ -38,7 +38,7 @@ runs:
 
     - name: Set COMPOSER_ROOT_VERSION of yiisoft/${{ github.event.pull_request.base.repo.name || github.event.repository.name }}
       id: composer_root_version
-      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
       env:
         INPUTS_COMPOSER_ROOT_VERSION: ${{ inputs.composer-root-version }}
         STEPS_LATEST_RELEASE_OUTPUTS_CURRENT: ${{ steps.latest_release.outputs.current }}
