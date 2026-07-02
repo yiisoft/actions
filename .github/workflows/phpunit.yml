@@ -22,6 +22,10 @@ on:
         description: List of extensions to PHP.
         required: false
         type: string
+      test-extensions:
+        description: List of extensions to PHP before running tests.
+        required: false
+        type: string
       ini-values:
         description: Initial values for PHP configuration.
         default: date.timezone='UTC'
@@ -104,6 +108,16 @@ jobs:
         uses: yiisoft/actions/install-packages@master
         with:
           packages: ${{ inputs.required-packages }}
+
+      - name: Configure PHP extensions before tests.
+        if: ${{ inputs.test-extensions != '' }}
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          coverage: ${{ inputs.coverage }}
+          extensions: ${{ inputs.test-extensions }}
+          ini-values: ${{ inputs.ini-values }}
+          php-version: ${{ matrix.php }}
+          tools: ${{ inputs.tools }}
 
       - name: Run tests with PHPUnit with code coverage
         if: ${{ runner.os != 'Windows' }}
