@@ -54,7 +54,7 @@ on:
         type: boolean
       codecovFailCiIfError:
         description: Specify whether Codecov upload errors should fail the workflow.
-        default: true
+        default: false
         required: false
         type: boolean
     secrets:
