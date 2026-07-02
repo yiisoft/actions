@@ -59,11 +59,20 @@ jobs:
       - name: Commit changes
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          HEAD_REF: ${{ github.head_ref }}
+          HEAD_REF: ${{ github.head_ref || github.ref_name }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GITHUB_TOKEN; }; f'
           git add '*.php'
-          git diff --staged --quiet || git commit -m "Apply PHP CS Fixer and Rector changes (CI)"
-          git push origin "HEAD:${HEAD_REF}"
+          if git diff --staged --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+          git stash
+          git fetch origin "$HEAD_REF"
+          git switch -C "$HEAD_REF" "origin/$HEAD_REF"
+          git stash pop
+          git add '*.php'
+          git commit -m "Apply PHP CS Fixer and Rector changes (CI)"
+          git push origin "HEAD:$HEAD_REF"
