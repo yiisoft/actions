@@ -6,7 +6,7 @@ runs:
   steps:
     - name: Set environment variable for work package url (pull request) windows.
       if: github.event_name == 'pull_request'
-      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
       env:
         GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_OWNER_LOGIN: ${{ github.event.pull_request.head.repo.owner.login }}
       with:
@@ -17,7 +17,7 @@ runs:
 
     - name: Set environment variable for work package url (push) windows.
       if: github.event_name == 'push'
-      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd
+      uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
       env:
         GITHUB_EVENT_REPOSITORY_OWNER_LOGIN: ${{ github.event.repository.owner.login }}
       with:

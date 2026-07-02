@@ -13,11 +13,6 @@ on:
         default: pcov
         required: false
         type: string
-      composer-command:
-        description: Composer command to run.
-        default: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
-        required: false
-        type: string
       debug:
         description: Debug mode.
         default: false
@@ -79,12 +74,12 @@ jobs:
 
     steps:
       - name: Checkout.
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Install PHP with extensions.
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           coverage: ${{ inputs.coverage }}
           extensions: ${{ inputs.extensions }}
@@ -92,41 +87,9 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: ${{ inputs.tools }}
 
-      - name: Determine composer cache directory on Linux.
-        if: matrix.os == 'ubuntu-latest'
-        run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
-
-      - name: Determine composer cache directory on Windows.
-        if: matrix.os == 'windows-latest'
-        run: echo "COMPOSER_CACHE_DIR=~\AppData\Local\Composer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-      - name: Cache dependencies installed with composer.
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae
-        with:
-          path: ${{ env.COMPOSER_CACHE_DIR }}
-          key: php${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}
-          restore-keys: |
-            php${{ matrix.php }}-composer-
-
-      - name: Update composer.
-        run: composer self-update
-
-      - name: Install dependencies with composer.
-        if: runner.os != 'Windows'
-        run: |
-          printf '%s\n' "$INPUTS_COMPOSER_COMMAND" > "$RUNNER_TEMP/composer-command.sh"
-          bash -e "$RUNNER_TEMP/composer-command.sh"
-        env:
-          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
-
-      - name: Install dependencies with composer.
-        if: runner.os == 'Windows'
-        shell: powershell
-        run: |
-          Set-Content -Path "$env:RUNNER_TEMP\composer-command.ps1" -Value $env:INPUTS_COMPOSER_COMMAND
-          & "$env:RUNNER_TEMP\composer-command.ps1"
-        env:
-          INPUTS_COMPOSER_COMMAND: ${{ inputs.composer-command }}
+      - name: Install Composer dependencies
+        if: inputs.usePackageBin == true
+        uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
 
       - name: Run tests with codeception with code coverage with shell bash.
         if: matrix.os == 'ubuntu-latest'
@@ -149,7 +112,7 @@ jobs:
 
       - name: Upload coverage to Codecov.
         if: matrix.os == 'ubuntu-latest' && matrix.php == '8.1' && inputs.debug == false
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN || secrets.codecovToken }}
           files: tests/_output/coverage.xml
@@ -157,11 +120,11 @@ jobs:
 
       - name: Archive codeception results.
         if: ${{ inputs.debug }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: output
           path: ./runtime/tests/_output
 
       - name: Download all workflow run artifacts.
         if: ${{ inputs.debug }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
