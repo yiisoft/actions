@@ -37,4 +37,5 @@ jobs:
           advanced-security: false
           annotations: true
           config: .zizmor-shared.yml
+          min-severity: high
           persona: 'pedantic'
