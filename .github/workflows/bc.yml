@@ -37,6 +37,11 @@ on:
         default: ''
         required: false
         type: string
+      composer-require-options:
+        description: Options passed to Composer when installing roave/backward-compatibility-check.
+        default: '--with-all-dependencies --no-progress --ansi'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -73,7 +78,12 @@ jobs:
 
       - name: Install roave/backward-compatibility-check
         if: inputs.usePackageBin == false
-        run: composer require --dev roave/backward-compatibility-check --with-all-dependencies --no-progress --ansi
+        env:
+          COMPOSER_REQUIRE_OPTIONS: ${{ inputs.composer-require-options }}
+        shell: bash
+        run: |
+          read -r -a composer_require_options <<< "${COMPOSER_REQUIRE_OPTIONS}"
+          composer require --dev roave/backward-compatibility-check "${composer_require_options[@]}"
 
       - if: ${{ inputs.required-packages != '' }}
         name: Install required packages.
