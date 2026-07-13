@@ -56,11 +56,6 @@ on:
         default: false
         required: false
         type: boolean
-      codecovFailCiIfError:
-        description: Specify whether Codecov upload errors should fail the workflow.
-        default: false
-        required: false
-        type: boolean
     secrets:
       CODECOV_TOKEN:
         description: Codecov upload token
@@ -139,4 +134,4 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN || secrets.codecovToken }}
           files: ./coverage.xml
           verbose: ${{ inputs.codecovVerbose }}
-          fail_ci_if_error: ${{ inputs.codecovFailCiIfError }}
+          fail_ci_if_error: true
