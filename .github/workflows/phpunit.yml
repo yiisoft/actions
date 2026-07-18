@@ -122,7 +122,7 @@ jobs:
         with:
           coverage: ${{ inputs.coverage }}
           extensions: ${{ inputs.test-extensions }}
-          ini-values: ${{ steps.ini-values.outputs.value }}
+          ini-values: ${{ steps['ini-values'].outputs.value }}
           php-version: ${{ matrix.php }}
           tools: ${{ inputs.tools }}
 
