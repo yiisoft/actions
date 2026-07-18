@@ -27,7 +27,7 @@ on:
         required: false
         type: string
       ini-values:
-        description: Initial values for PHP configuration.
+        description: Initial values for PHP configuration. Use `%GITHUB_WORKSPACE%` as a placeholder for the actual workspace path.
         default: date.timezone='UTC'
         required: false
         type: string
@@ -84,12 +84,26 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Resolve %GITHUB_WORKSPACE% in ini-values
+        id: ini-values
+        shell: bash
+        run: |
+          delimiter="INI_VALUES_EOF_${RANDOM}_$$"
+          resolved=${INI_VALUES//%GITHUB_WORKSPACE%/$GITHUB_WORKSPACE}
+          {
+            printf 'value<<%s\n' "$delimiter"
+            printf '%s\n' "$resolved"
+            printf '%s\n' "$delimiter"
+          } >> "$GITHUB_OUTPUT"
+        env:
+          INI_VALUES: ${{ inputs.ini-values }}
+
       - name: Install PHP with extensions.
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           coverage: ${{ inputs.coverage }}
           extensions: ${{ inputs.extensions }}
-          ini-values: ${{ inputs.ini-values }}
+          ini-values: ${{ steps['ini-values'].outputs.value }}
           php-version: ${{ matrix.php }}
           tools: ${{ inputs.tools }}
 
@@ -110,7 +124,7 @@ jobs:
         with:
           coverage: ${{ inputs.coverage }}
           extensions: ${{ inputs.test-extensions }}
-          ini-values: ${{ inputs.ini-values }}
+          ini-values: ${{ steps['ini-values'].outputs.value }}
           php-version: ${{ matrix.php }}
           tools: ${{ inputs.tools }}
 
