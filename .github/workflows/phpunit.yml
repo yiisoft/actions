@@ -88,11 +88,15 @@ jobs:
         id: ini-values
         shell: bash
         run: |
+          delimiter="INI_VALUES_EOF_${RANDOM}_${RANDOM}_$$_$(date +%s)"
+          workspace_repl=${GITHUB_WORKSPACE//\\/\\\\}
+          workspace_repl=${workspace_repl//&/\\&}
+          resolved=${INI_VALUES//%GITHUB_WORKSPACE%/$workspace_repl}
           {
-            echo "value<<EOF"
-            echo "${INI_VALUES//%GITHUB_WORKSPACE%/$GITHUB_WORKSPACE}"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+            printf 'value<<%s\n' "$delimiter"
+            printf '%s\n' "$resolved"
+            printf '%s\n' "$delimiter"
+          } >>"$GITHUB_OUTPUT"
         env:
           INI_VALUES: ${{ inputs.ini-values }}
 
