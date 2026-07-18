@@ -84,19 +84,17 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Resolve %GITHUB_WORKSPACE% in ini-values.
+      - name: Resolve %GITHUB_WORKSPACE% in ini-values
         id: ini-values
         shell: bash
         run: |
-          delimiter="INI_VALUES_EOF_${RANDOM}_${RANDOM}_$$_$(date +%s)"
-          workspace_repl=${GITHUB_WORKSPACE//\\/\\\\}
-          workspace_repl=${workspace_repl//&/\\&}
-          resolved=${INI_VALUES//%GITHUB_WORKSPACE%/$workspace_repl}
+          delimiter="INI_VALUES_EOF_${RANDOM}_$$"
+          resolved=${INI_VALUES//%GITHUB_WORKSPACE%/$GITHUB_WORKSPACE}
           {
             printf 'value<<%s\n' "$delimiter"
             printf '%s\n' "$resolved"
             printf '%s\n' "$delimiter"
-          } >>"$GITHUB_OUTPUT"
+          } >> "$GITHUB_OUTPUT"
         env:
           INI_VALUES: ${{ inputs.ini-values }}
 
