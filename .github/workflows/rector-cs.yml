@@ -50,11 +50,11 @@ jobs:
         with:
           packages: ${{ inputs.required-packages }}
 
-      - name: Run PHP CS Fixer
-        run: ./vendor/bin/php-cs-fixer fix
-
       - name: Run Rector
         run: ./vendor/bin/rector --output-format=github
+
+      - name: Run PHP CS Fixer
+        run: ./vendor/bin/php-cs-fixer fix
 
       - name: Commit changes
         env:
