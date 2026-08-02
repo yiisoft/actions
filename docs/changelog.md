@@ -11,7 +11,6 @@ on:
     paths:
       - 'src/**'
       - 'config/**'
-      - './.github/workflows/changelog.yml'
 
 permissions:
   contents: read
