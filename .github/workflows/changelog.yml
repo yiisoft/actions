@@ -1,0 +1,26 @@
+name: changelog
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  changelog:
+    name: Check CHANGELOG.md
+    if: github.event.pull_request.base.ref == 'master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Check CHANGELOG.md updated
+        run: |
+          if ! git diff --name-only origin/master...HEAD | grep -qx 'CHANGELOG.md'; then
+            echo "::error::CHANGELOG.md was not updated."
+            exit 1
+          fi
