@@ -21,12 +21,11 @@ jobs:
       - name: Check CHANGELOG.md updated
         run: |
           if ! git diff --name-only origin/master...HEAD | grep -qx 'CHANGELOG.md'; then
-            message="%0A"
-            message+="::error::%0AThis pull request changes primary files but does not update CHANGELOG.md.%0A"
+            message="This pull request changes primary files but does not update CHANGELOG.md.%0A"
             message+="%0A"
             message+="See the changelog documentation here:%0A"
             message+="https://yiisoft.github.io/docs/internals/021-changelog-upgrade.html#changelog"
             message+="%0A"
-            echo "${message}"
+            echo "::error::${message}"
             exit 1
           fi
