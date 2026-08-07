@@ -10,6 +10,7 @@
 
 This package allows us to reuse GitHub actions, which simplifies version management.
 
+- [CHANGELOG.md check](docs/changelog.md)
 - [Composer require checker](docs/composer.md)
 - [Easy Coding Standard](docs/ecs.md)
 - [PHPBench](docs/php-bench.md)
